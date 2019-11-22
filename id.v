@@ -3,22 +3,22 @@
 module id(
     input wire rst,
     input wire[`InstAddrBus] pc_i,
-    input wire[`InsrBus] inst_i,
+    input wire[`InstBus] inst_i,
 
-    input wire reg1_data_i,
-    input wire reg2_data_i,
+    input wire[`RegBus] reg1_data_i,
+    input wire[`RegBus] reg2_data_i,
 
-    output reg reg_1_read_o, //Regfile模块第一个端口的读使能信号
-    output reg reg_2_read_o,
-    output reg[`RegAddrBus] reg1_addr_o，
+    output reg reg1_read_o, //Regfile模块第一个端口的读使能信�?
+    output reg reg2_read_o,
+    output reg[`RegAddrBus] reg1_addr_o,
     output reg[`RegAddrBus] reg2_addr_o,
 
     output reg[`AluOpBus] aluop_o,
-    output reg[`ALuFunBus] alufun_o,
+    output reg[`AluFunBus] alufun_o,
     output reg[`RegBus] reg1_o,
     output reg[`RegBus] reg2_o,
-    output reg[`RegBus] wd_o,
-    output reg wreg_o //译码阶段的指令是否有要写入的目的寄存器
+    output reg[`RegAddrBus] wd_o,
+    output reg wreg_o //译码阶段的指令是否有要写入的目的寄存�?
 );
 
     wire[6:0] op = inst_i[6:0];
@@ -32,8 +32,8 @@ module id(
 
     always @ (*) begin
         if (rst == `RstEnable) begin
-            reg_1_read_o <= 0;
-            reg_2_read_o <= 0;
+            reg1_read_o <= 0;
+            reg2_read_o <= 0;
             reg1_addr_o <= 0;
             reg2_addr_o <= 0;
 
@@ -49,9 +49,9 @@ module id(
             alufun_o <= 0;
             wd_o <= inst_i[15:11]; //it's wrong!
             wreg_o <= 0;
-            instvalid <= `instvalid;
-            reg_1_read_o <= 0;
-            reg_2_read_o <= 0;
+            instvalid <= `InstValid;
+            reg1_read_o <= 0;
+            reg2_read_o <= 0;
             reg1_addr_o <= inst_i[25:21];
             reg2_addr_o <= inst_i[20:16];
             imm <= 0;
@@ -59,7 +59,7 @@ module id(
             case (op)
                 `EXE_ORI: begin
                     wreg_o <= `WriteEnable;
-                    aluop <= `EXE_OR_OP;
+                    aluop_o <= `EXE_OR_OP;
                     alufun_o <= `EXE_RES_LOGIC;
                     reg1_read_o <= 1'b1;
                     reg2_read_o <= 1'b0;

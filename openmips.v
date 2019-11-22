@@ -32,7 +32,7 @@ module openmips(
     //EX -> EX/MEM
     wire ex_wreg_o;
     wire[`RegAddrBus] ex_wd_o;
-    wire[`RegBus] ex_wdata_i;
+    wire[`RegBus] ex_wdata_o;
 
     //EX/MEM -> MEM
     wire mem_wreg_i;
@@ -40,9 +40,9 @@ module openmips(
     wire[`RegBus] mem_wdata_i;
 
     //MEM -> MEM/WB
-    wire mem_wreg_i;
-    wire[`RegAddrBus] mem_wd_i;
-    wire[`RegBus] mem_wdata_i;
+    wire mem_wreg_o;
+    wire[`RegAddrBus] mem_wd_o;
+    wire[`RegBus] mem_wdata_o;
 
     //MEM/WB -> WB
     wire wb_wreg_i;
@@ -118,20 +118,20 @@ module openmips(
         .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o),
         .ex_wdata(ex_wdata_o),
         .mem_wd(mem_wd_i), .mem_wreg(mem_wreg_i),
-        .mem_wdata(mem_wdata_i),
+        .mem_wdata(mem_wdata_i)
     );
 
     mem mem0(
         .rst(rst),
         .wd_i(mem_wd_i), .wreg_i(mem_wreg_i),
         .wdata_i(mem_wdata_i),
-        .wd_o(mem_wd_o), .wreg_i(mem_wreg_o),
+        .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
         .wdata_o(mem_wdata_o)
     );
 
     mem_wb mem_wb0(
         .clk(clk), .rst(rst),
-        .mem_wd(mem_wd_o), .memwreg(mem_wreg_o),
+        .mem_wd(mem_wd_o), .mem_wreg(mem_wreg_o),
         .mem_wdata(mem_wdata_o),
 
         .wb_wd(wb_wd_i), .wb_wreg(wb_wreg_i),

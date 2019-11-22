@@ -28,8 +28,8 @@
 //与指令储存器ROM有关的宏定义
 `define InstAddrBus         31:0
 `define InstBus             31:0
-`define InstMemNum          131071 //书上设计ROM的实际大小是128KB
-`define InstMemNumLog2      17
+`define InstMemNum          16384 //128Kb一共有16384个字节
+`define InstMemNumLog2      14
 
 
 //与通用寄存器Regfile有关的宏定义

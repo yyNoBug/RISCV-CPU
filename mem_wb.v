@@ -21,7 +21,7 @@ module mem_wb(
         end else begin
             wb_wd = mem_wd;
             wb_wreg = mem_wreg;
-            wb_data = mem_data;
+            wb_wdata = mem_wdata;
         end
     end
 

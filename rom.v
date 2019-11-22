@@ -2,17 +2,19 @@
 
 module rom(
     input wire ce,
-    input wire[5:0] addr,
-    output reg[31:0] inst
+    input wire[`InstAddrBus] addr,
+    output reg[`InstBus] inst
 );
 
-    reg[31:0] rom[63:0];
+    reg[`InstBus] rom[0:`InstMemNum - 1];
+
+    initial $readmemh ("inst_rom.data", inst_mem);
 
     always @ (*) begin
-        if (ce == 1'b0) begin
+        if (ce == `ChipDisable) begin
             inst <= 32'h0;
         end else begin
-            inst <= rom[addr];
+            inst <= rom[addr[`InstMemNumLog2 + 1 : 2]]; // 除以4寻址
         end
     end
 

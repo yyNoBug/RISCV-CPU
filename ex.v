@@ -8,14 +8,14 @@ module ex(
     input wire[`RegBus] reg1_i,
     input wire[`RegBus] reg2_i,
     input wire[`RegAddrBus] wd_i,
-    input wire wreg_i, //此段指令是否有写入的最终寄存器
+    input wire wreg_i, //此段指令是否有写入的�?终寄存器
 
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o
 );
 
-    reg[`RegBus] logicout; //保存逻辑运算的结果(??)
+    reg[`RegBus] logicout; //保存逻辑运算的结�?(??)
 
     always @ (*) begin
         if (rst == `RstEnable) begin
@@ -36,7 +36,7 @@ module ex(
         //why needn't judging rst
         wd_o <= wd_i;
         wreg_o <= wreg_i;
-        case (alufun_i):
+        case (alufun_i)
             `EXE_RES_LOGIC: begin
                 wdata_o <= logicout;
             end

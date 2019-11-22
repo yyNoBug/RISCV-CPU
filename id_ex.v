@@ -30,9 +30,10 @@ module id_ex(
         end else begin
             ex_aluop <= id_aluop;
             ex_alufun <= id_alufun;
-            ex_reg1 <= id_reg_1;
-            ex_reg2 <= id_reg_2;
+            ex_reg1 <= id_reg1;
+            ex_reg2 <= id_reg2;
             ex_wd <= id_wd;
             ex_wreg <= id_wreg;
         end
     end
+endmodule
