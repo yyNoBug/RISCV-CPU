@@ -11,7 +11,7 @@ module pc_reg(
         if (rst == `RstEnable) begin
             ce <= `ChipDisable;
         end else begin
-            ce <= `ChipDisable;
+            ce <= `ChipEnable;
         end
     end
 
@@ -19,7 +19,7 @@ module pc_reg(
         if (ce == `ChipDisable) begin
             pc <= 32'h00000000;
         end else begin
-            pc <= pc + 4'h4l;
+            pc <= pc + 4'h4;
         end
     end
 
