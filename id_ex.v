@@ -6,8 +6,8 @@ module id_ex(
 
     input wire[`AluOpBus] id_aluop,
     input wire[`AluFunBus] id_alufun,
-    input wire[`RegBus] id_reg_1,
-    input wire[`RegBus] id_reg_2,
+    input wire[`RegBus] id_reg1,
+    input wire[`RegBus] id_reg2,
     input wire[`RegAddrBus] id_wd,
     input wire id_wreg,
 
