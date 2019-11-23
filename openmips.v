@@ -77,7 +77,7 @@ module openmips(
 
         //to RegFile
         .reg1_read_o(reg1_read), .reg2_read_o(reg2_read),
-        .reg1_addr_o(reg2_addr), .reg2_addr_o(reg2_addr),
+        .reg1_addr_o(reg1_addr), .reg2_addr_o(reg2_addr),
         
         //to ID/EX
         .aluop_o(id_aluop_o), .alufun_o(id_alufun_o),
@@ -100,14 +100,14 @@ module openmips(
         .id_wd(id_wd_o), .id_wreg(id_wreg_o),
         
         .ex_aluop(ex_aluop_i), .ex_alufun(ex_alufun_i),
-        .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg1_i),
+        .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i),
         .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i)
     );
 
     ex ex0(
         .rst(rst),
         .aluop_i(ex_aluop_i), .alufun_i(ex_alufun_i),
-        .reg1_i(ex_reg1_i), .reg2_i(ex_wreg2_i),
+        .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
         .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
         .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
         .wdata_o(ex_wdata_o)

@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module rom(
+module inst_rom(
     input wire ce,
     input wire[`InstAddrBus] addr,
     output reg[`InstBus] inst
@@ -8,7 +8,7 @@ module rom(
 
     reg[`InstBus] rom[0:`InstMemNum - 1];
 
-    initial $readmemh ("inst_rom.data", inst_mem);
+    initial $readmemh ("C:/Users/yy/×ÀÃæ/RISC/inst_rom.data", rom);
 
     always @ (*) begin
         if (ce == `ChipDisable) begin
