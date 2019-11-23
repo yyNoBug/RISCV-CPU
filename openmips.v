@@ -20,6 +20,7 @@ module openmips(
     wire[`RegBus] id_reg2_o;
     wire id_wreg_o;
     wire[`RegAddrBus] id_wd_o;
+    wire[`ImmBus] id_imm_o;
 
     //ID/EX -> EX
     wire[`AluOpBus] ex_aluop_i;
@@ -28,6 +29,7 @@ module openmips(
     wire[`RegBus] ex_reg2_i;
     wire ex_wreg_i;
     wire[`RegAddrBus] ex_wd_i;
+    wire[`ImmBus] ex_imm_i;
 
     //EX -> EX/MEM
     wire ex_wreg_o;
@@ -82,7 +84,8 @@ module openmips(
         //to ID/EX
         .aluop_o(id_aluop_o), .alufun_o(id_alufun_o),
         .reg1_o(id_reg1_o), .reg2_o(id_reg2_o),
-        .wd_o(id_wd_o), .wreg_o(id_wreg_o)
+        .wd_o(id_wd_o), .wreg_o(id_wreg_o),
+        .imm_o(id_imm_o)
     );
 
     regfile regfile0(
@@ -98,10 +101,12 @@ module openmips(
         .id_aluop(id_aluop_o), .id_alufun(id_alufun_o),
         .id_reg1(id_reg1_o), .id_reg2(id_reg2_o),
         .id_wd(id_wd_o), .id_wreg(id_wreg_o),
+        .id_imm(id_imm_o),
         
         .ex_aluop(ex_aluop_i), .ex_alufun(ex_alufun_i),
         .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i),
-        .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i)
+        .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
+        .ex_imm(ex_imm_i)
     );
 
     ex ex0(
@@ -109,6 +114,7 @@ module openmips(
         .aluop_i(ex_aluop_i), .alufun_i(ex_alufun_i),
         .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
         .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
+        .imm_i(ex_imm_i),
         .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
         .wdata_o(ex_wdata_o)
     );
