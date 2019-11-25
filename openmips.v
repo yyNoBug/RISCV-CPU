@@ -25,7 +25,11 @@ module openmips(
     //ID/EX -> EX
     wire[`AluOpBus] ex_aluop_i;
     wire[`AluFunBus] ex_alufun_i;
+    wire ex_reg1_re_i;
+    wire[`RegAddrBus] ex_reg1_addr_i;
     wire[`RegBus] ex_reg1_i;
+    wire ex_reg2_re_i;
+    wire[`RegAddrBus] ex_reg2_addr_i;
     wire[`RegBus] ex_reg2_i;
     wire ex_wreg_i;
     wire[`RegAddrBus] ex_wd_i;
@@ -58,6 +62,14 @@ module openmips(
     wire[`RegBus] reg2_data;
     wire[`RegAddrBus] reg1_addr;
     wire[`RegAddrBus] reg2_addr;
+    
+    //Data-fowarding
+    wire dataf_exmem_we;
+    wire[`RegAddrBus] dataf_exmem_wd;
+    wire[`RegBus] dataf_exmem_data;
+    wire dataf_memwb_we;
+    wire[`RegAddrBus] dataf_memwb_wd;
+    wire[`RegBus] dataf_memwb_data;
 
     pc_reg pc_reg0(
         .clk(clk), .rst(rst), .pc(pc), .ce(rom_ce_o)
@@ -99,12 +111,16 @@ module openmips(
     id_ex id_ex0(
         .clk(clk), .rst(rst),
         .id_aluop(id_aluop_o), .id_alufun(id_alufun_o),
-        .id_reg1(id_reg1_o), .id_reg2(id_reg2_o),
+        .id_reg1_re(reg1_read), .id_reg2_re(reg2_read),
+        .id_reg1_addr(reg1_addr), .id_reg1(id_reg1_o), 
+        .id_reg2_addr(reg2_addr), .id_reg2(id_reg2_o),
         .id_wd(id_wd_o), .id_wreg(id_wreg_o),
         .id_imm(id_imm_o),
         
         .ex_aluop(ex_aluop_i), .ex_alufun(ex_alufun_i),
-        .ex_reg1(ex_reg1_i), .ex_reg2(ex_reg2_i),
+        .ex_reg1_re(ex_reg1_re_i), .ex_reg2_re(ex_reg2_re_i),
+        .ex_reg1_addr(ex_reg1_addr_i), .ex_reg1(ex_reg1_i),
+        .ex_reg2_addr(ex_reg2_addr_i), .ex_reg2(ex_reg2_i),
         .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
         .ex_imm(ex_imm_i)
     );
@@ -112,11 +128,20 @@ module openmips(
     ex ex0(
         .rst(rst),
         .aluop_i(ex_aluop_i), .alufun_i(ex_alufun_i),
-        .reg1_i(ex_reg1_i), .reg2_i(ex_reg2_i),
+        .reg1_re(ex_reg1_re_i), .reg2_re(ex_reg2_re_i),
+        .reg1_i_addr(ex_reg1_addr_i), .reg1_i(ex_reg1_i),
+        .reg2_i_addr(ex_reg2_addr_i), .reg2_i(ex_reg2_i),
         .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
         .imm_i(ex_imm_i),
         .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
-        .wdata_o(ex_wdata_o)
+        .wdata_o(ex_wdata_o),
+        
+        .dataf_exmem_we(dataf_exmem_we),
+        .dataf_exmem_wd(dataf_exmem_wd),
+        .dataf_exmem_data(dataf_exmem_data),
+        .dataf_memwb_we(dataf_memwb_we),
+        .dataf_memwb_wd(dataf_memwb_wd),
+        .dataf_memwb_data(dataf_memwb_data)
     );
 
     ex_mem ex_mem0(
@@ -124,7 +149,9 @@ module openmips(
         .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o),
         .ex_wdata(ex_wdata_o),
         .mem_wd(mem_wd_i), .mem_wreg(mem_wreg_i),
-        .mem_wdata(mem_wdata_i)
+        .mem_wdata(mem_wdata_i),
+        .mem_wd_df(dataf_exmem_wd), .mem_wreg_df(dataf_exmem_we),
+        .mem_wdata_df(dataf_exmem_data)
     );
 
     mem mem0(
@@ -141,7 +168,9 @@ module openmips(
         .mem_wdata(mem_wdata_o),
 
         .wb_wd(wb_wd_i), .wb_wreg(wb_wreg_i),
-        .wb_wdata(wb_wdata_i)
+        .wb_wdata(wb_wdata_i),
+        .wb_wd_df(dataf_memwb_wd), .wb_wreg_df(dataf_memwb_we),
+        .wb_wdata_df(dataf_memwb_data)
     );
 
 endmodule

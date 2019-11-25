@@ -5,18 +5,63 @@ module ex(
 
     input wire[`AluOpBus] aluop_i,
     input wire[`AluFunBus] alufun_i,
+    input wire reg1_re,
+    input wire[`RegAddrBus] reg1_i_addr,
     input wire[`RegBus] reg1_i,
+    input wire reg2_re,
+    input wire[`RegAddrBus] reg2_i_addr,
     input wire[`RegBus] reg2_i,
     input wire[`RegAddrBus] wd_i,
-    input wire wreg_i, //此段指令是否有写入的�???终寄存器
+    input wire wreg_i, //此段指令是否有写入的�?终寄存器
     input wire[`ImmBus] imm_i,
+
+    input wire dataf_exmem_we, //If there isn't any error here, I'm somehow confident that data-fowarding will work properly.
+    input wire[`RegAddrBus] dataf_exmem_wd,
+    input wire[`RegBus] dataf_exmem_data,
+    input wire dataf_memwb_we,
+    input wire[`RegAddrBus] dataf_memwb_wd,
+    input wire[`RegBus] dataf_memwb_data,
 
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o
 );
 
-    reg[`RegBus] logicout; //保存逻辑运算的结�???(??)
+    reg[`RegBus] logicout;
+    
+    wire[`RegBus] reg1;
+    assign reg1 = ((reg1_i_addr == dataf_memwb_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg1_re == `ReadEnable) ? (((reg1_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg1_re == `ReadEnable) ? dataf_exmem_data : reg1_i) : dataf_exmem_data;
+    
+    /*
+    if ((reg1_i_addr == dataf_memwb_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg1_re == `ReadEnable) begin
+        wire[`RegBus] reg1 = dataf_memwb_data;
+    end else if ((reg1_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg1_re == `ReadEnable) begin
+        wire[`RegBus] reg1 = dataf_exmem_data;
+    end else begin
+        wire[`RegBus] reg1 = reg1_i;
+    end
+    */
+    
+    wire[`RegBus] reg2;
+    assign reg2 = ((reg2_i_addr == dataf_memwb_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg2_re == `ReadEnable) ? (((reg2_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
+        && reg2_re == `ReadEnable) ? dataf_exmem_data : reg2_i) : dataf_exmem_data;
+
+    /*
+    if ((raddr2 == dataf_memwb_addr) &&  (dataf_exmem_we == `WriteEnable)
+        && reg2_re == `ReadEnable) begin
+        wire[`RegBus] reg2 = dataf_memwb_data;
+    end else if ((raddr2 == dataf_exmem_addr) &&  (dataf_exmem_we == `WriteEnable)
+        && reg2_re == `ReadEnable) begin
+        wire[`RegBus] reg2 = dataf_exmem_data;
+    end else begin
+        wire[`RegBus] reg2 = reg2_i;
+    end
+    */
 
     always @ (*) begin
         if (rst == `RstEnable) begin
@@ -26,34 +71,34 @@ module ex(
             `EXE_ORI: begin
                 case(alufun_i)
                 `FUN_ORI: begin
-                    logicout <= reg1_i | imm_i;
+                    logicout <= reg1 | imm_i;
                 end
                 `FUN_ANDI: begin
-                    logicout <= reg1_i & imm_i;
+                    logicout <= reg1 & imm_i;
                 end
                 `FUN_XORI: begin
-                    logicout <= reg1_i ^ imm_i;
+                    logicout <= reg1 ^ imm_i;
                 end
                 `FUN_ADDI: begin
-                    logicout <= reg1_i + imm_i;
+                    logicout <= reg1 + imm_i;
                 end
                 `FUN_SLTI: begin
-                    if ($signed(reg1_i) < $signed(imm_i)) 
-                        logicout <= reg1_i;
+                    if ($signed(reg1) < $signed(imm_i)) 
+                        logicout <= reg1;
                     else logicout <= 0;
                 end
                 `FUN_SLTIU: begin
-                    if (reg1_i < imm_i) logicout <= reg1_i;
+                    if (reg1 < imm_i) logicout <= reg1;
                     else logicout <= 0;
                 end
                 `FUN_SLLI: begin
-                    logicout <= reg1_i << imm_i[4:0]; //may be wrong here
+                    logicout <= reg1 << imm_i[4:0]; //may be wrong here
                 end
                 `FUN_SRLI: begin
                     if (imm_i[10] == 1'b0)
-                        logicout <= reg1_i >>> imm_i[4:0]; //may be wrong here
+                        logicout <= reg1 >>> imm_i[4:0]; //may be wrong here
                     else
-                        logicout <= reg1_i >> imm_i[4:0]; //may be wrong here
+                        logicout <= reg1 >> imm_i[4:0]; //may be wrong here
                 end
                 default: begin
                     logicout <= 0;
@@ -64,37 +109,37 @@ module ex(
                 case(alufun_i)
                 `FUN_ADD: begin
                     if (imm_i[10] == 1'b0)
-                        logicout <= reg1_i + reg2_i;
+                        logicout <= reg1 + reg2;
                     else
-                        logicout <= reg1_i - reg2_i;
+                        logicout <= reg1 - reg2;
                 end
                 `FUN_SLL: begin
-                    logicout <= reg1_i << reg2_i[4:0];
+                    logicout <= reg1 << reg2[4:0];
                 end
                 `FUN_SRL: begin
                     if (imm_i[10] == 1'b0)
-                        logicout <= reg1_i >>> reg2_i[4:0]; 
+                        logicout <= reg1 >>> reg2[4:0]; 
                     else
-                        logicout <= reg1_i >> reg2_i[4:0];
+                        logicout <= reg1 >> reg2[4:0];
                 end
                 `FUN_SLT: begin
-                    if ($signed(reg1_i) < $signed(reg2_i)) 
-                        logicout <= reg1_i;
+                    if ($signed(reg1) < $signed(reg2)) 
+                        logicout <= reg1;
                     else
                         logicout <= 0;
                 end
                 `FUN_SLTU: begin
-                    if (reg1_i < reg2_i) logicout <= reg1_i;
+                    if (reg1 < reg2) logicout <= reg1;
                     else logicout <= 0;
                 end
                 `FUN_OR: begin
-                    logicout <= reg1_i | reg2_i;
+                    logicout <= reg1 | reg2;
                 end
                 `FUN_AND: begin
-                    logicout <= reg1_i & reg2_i;
+                    logicout <= reg1 & reg2;
                 end
                 `FUN_XOR: begin
-                    logicout <= reg1_i ^ reg2_i;
+                    logicout <= reg1 ^ reg2;
                 end
                 endcase
             end
