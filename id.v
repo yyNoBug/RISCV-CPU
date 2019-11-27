@@ -8,7 +8,7 @@ module id(
     input wire[`RegBus] reg1_data_i,
     input wire[`RegBus] reg2_data_i,
 
-    output reg reg1_read_o, //Regfile模块第一个端口的读使能信�?????
+    output reg reg1_read_o, //Regfile模块第一个端口的读使能信�??????
     output reg reg2_read_o,
     output reg[`RegAddrBus] reg1_addr_o,
     output reg[`RegAddrBus] reg2_addr_o,
@@ -18,8 +18,9 @@ module id(
     output reg[`RegBus] reg1_o,
     output reg[`RegBus] reg2_o,
     output reg[`RegAddrBus] wd_o,
-    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存�?????
+    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存�??????
     output reg[`ImmBus] imm_o,
+    output reg[`InstAddrBus] pc_o,
 
     output reg id_stall
 );
@@ -74,6 +75,16 @@ module id(
                 reg2_read_o = 1'b1;
                 instvalid = `InstValid;
             end
+            `EXE_LUI: begin
+                wreg_o = `WriteEnable;
+                imm_o = {inst_i[31:12], {12{1'b0}}};
+                instvalid = `InstValid;
+            end
+            `EXE_AUIPC: begin
+                wreg_o = `WriteEnable;
+                imm_o = {inst_i[31:12], {12{1'b0}}};
+                instvalid = `InstValid;
+            end
             `EXE_JAL: begin
                 wreg_o = `WriteEnable;
                 imm_o = {{12{inst_i[31]}}, inst_i[19:12], inst_i[20], inst_i[30:21], 1'b0};
@@ -92,6 +103,14 @@ module id(
                 alufun_o = 0;
             end
             endcase
+        end
+    end
+
+    always @ (*) begin
+        if (rst == `RstEnable) begin
+            pc_o = 0;
+        end else begin
+            pc_o = pc_i;
         end
     end
 

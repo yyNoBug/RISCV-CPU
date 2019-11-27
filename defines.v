@@ -26,6 +26,8 @@
 //与指令有关具体宏的含义
 `define EXE_ORI             7'b0010011 //指令ORI等的指令码
 `define EXE_OR              7'b0110011 //指令OR等的指令码
+`define EXE_LUI             7'b0110111
+`define EXE_AUIPC           7'b0010111
 `define EXE_JAL             7'b1101111 //指令JAL的指令码
 `define EXE_JALR            7'b1100111 //指令JALR的指令码
 `define EXE_BEQ             7'b1100011 //分支指令的指令码
