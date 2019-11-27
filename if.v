@@ -10,6 +10,7 @@ module iF(
     output reg[`InstBus] inst_out,
 
     // interation with memcontrol
+    input wire inst_almost_avalible,
     input wire inst_avalible,
     input wire[`InstBus] inst_in,
     input wire[`InstAddrBus] pc_back,
@@ -26,16 +27,14 @@ module iF(
         if (rst == `RstEnable) begin  // I changed chipenable here
             inst_out = 32'h0;
             pc_mem = 0;
-            //npc_out = 0;
-            //inst_needed = `False;
             if_stall = `False;
         end else begin
             if (inst_avalible == `True) begin
-                //inst_needed = `False;
-                #0.5 pc_mem = pc_in;  //I have noticed a bug here but I don't want to fix it now.
-                //npc_out = npc_in;
-                #0.5 inst_out = inst_in;
-                #0.5 if_stall = `False;
+                inst_out = inst_in;
+                if_stall = `True;
+            end else if (inst_almost_avalible) begin
+                pc_mem = pc_in;
+                if_stall = `False;
             end else
                 if_stall = `True;
         end
