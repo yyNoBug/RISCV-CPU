@@ -14,14 +14,6 @@
 `define False_v             1'b0
 `define ChipEnable          1'b1
 `define ChipDisable         1'b0
-`define Busy                1'b1
-`define NotBusy             1'b0
-`define Avl                 1'b1
-`define NotAvl              1'b0
-`define True                1'b1
-`define False               1'b0
-`define Read                1'b0
-`define Write               1'b1
 
 //与指令有关具体宏的含义
 `define EXE_ORI             7'b0010011 //指令ORI等的指令码
@@ -51,6 +43,7 @@
 `define FUN_SRA             3'b101
 `define FUN_OR              3'b110
 `define FUN_AND             3'b111
+
 
 `define FUN_NOP             3'b000
 

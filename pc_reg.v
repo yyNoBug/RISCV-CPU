@@ -1,12 +1,15 @@
 `include "defines.v"
 
 module pc_reg(
-    input wire                  clk,
-    input wire                  rst,
-    output reg[`InstAddrBus]    pc,
-    output reg                  ce
+    input wire clk,
+    input wire rst,
+    input wire if_stall,
+    output reg[`InstAddrBus] if_pc_i
+    //output reg[`InstAddrBus] if_npc_i
+    //output reg ce
 );
 
+    /*
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             ce <= `ChipDisable;
@@ -14,12 +17,16 @@ module pc_reg(
             ce <= `ChipEnable;
         end
     end
+    */
 
     always @ (posedge clk) begin
-        if (ce == `ChipDisable) begin
-            pc <= 32'h00000000;
+        if (rst == `True) begin // I've changed the chipenable here
+            if_pc_i <= 32'h00000000;
+            //if_npc_i <= 32'h00000000;
+        end else if (if_stall == `False) begin
+            if_pc_i <= if_pc_i + 4'h4;
+            //if_npc_i <= if_npc_i + 8'h4;
         end else begin
-            pc <= pc + 4'h4;
         end
     end
 

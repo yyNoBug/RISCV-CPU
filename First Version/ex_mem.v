@@ -3,7 +3,6 @@
 module ex_mem(
     input wire clk,
     input wire rst,
-    input wire mem_stall,
     
     input wire[`RegAddrBus] ex_wd,
     input wire ex_wreg,

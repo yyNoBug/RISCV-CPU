@@ -62,7 +62,7 @@ module openmips(
     wire[`RegBus] reg2_data;
     wire[`RegAddrBus] reg1_addr;
     wire[`RegAddrBus] reg2_addr;
-    
+
     //Data-fowarding
     wire dataf_exmem_we;
     wire[`RegAddrBus] dataf_exmem_wd;

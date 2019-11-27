@@ -3,7 +3,6 @@
 module id_ex(
     input wire clk,
     input wire rst,
-    input wire ex_stall,
 
     input wire[`AluOpBus] id_aluop,
     input wire[`AluFunBus] id_alufun,
