@@ -113,8 +113,8 @@ wire mem_stall;
 //Mem-control
 wire[`InstAddrBus] mc_inst_addr_i;
 wire[`InstAddrBus] mc_inst_addr_o;
-wire mc_almost_avalible_o;
-wire mc_avalible_o;
+wire mc_almost_available_o;
+wire mc_available_o;
 wire[`InstBus] mc_inst_o;
 
 pc_reg pc_reg0(
@@ -123,8 +123,8 @@ pc_reg pc_reg0(
 
 iF if0(
     .rst(rst_in), .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
-    .inst_almost_avalible(mc_almost_avalible_o),
-    .inst_avalible(mc_avalible_o), .inst_in(mc_inst_o),
+    .inst_almost_available(mc_almost_available_o),
+    .inst_available(mc_available_o), .inst_in(mc_inst_o),
     .pc_back(mc_inst_addr_o), .pc_mem(mc_inst_addr_i), .if_stall(if_stall)
 );
 
@@ -135,8 +135,8 @@ mem_control mem_control0(
     .dout_ram(mem_dout), .din_ram(mem_din),
     .addr_ram(mem_a), .wr_ram(mem_wr),
     .inst_addr_i(mc_inst_addr_i), .inst_addr_o(mc_inst_addr_o),
-    .almost_avalible(mc_almost_avalible_o),
-    .avalible(mc_avalible_o), .inst(mc_inst_o)
+    .almost_available(mc_almost_available_o),
+    .available(mc_available_o), .inst(mc_inst_o)
 );
 
 if_id if_id0(

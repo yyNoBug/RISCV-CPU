@@ -10,8 +10,8 @@ module iF(
     output reg[`InstBus] inst_out,
 
     // interation with memcontrol
-    input wire inst_almost_avalible,
-    input wire inst_avalible,
+    input wire inst_almost_available,
+    input wire inst_available,
     input wire[`InstBus] inst_in,
     input wire[`InstAddrBus] pc_back,
     //output wire inst_needed,
@@ -29,10 +29,10 @@ module iF(
             pc_mem = 0;
             if_stall = `False;
         end else begin
-            if (inst_avalible == `True) begin
+            if (inst_available == `True) begin
                 inst_out = inst_in;
                 if_stall = `True;
-            end else if (inst_almost_avalible) begin
+            end else if (inst_almost_available) begin
                 pc_mem = pc_in;
                 if_stall = `False;
             end else

@@ -15,8 +15,8 @@ module mem_control(
     //input wire inst_needed,
     input wire[`InstAddrBus] inst_addr_i,
     //input wire[`InstAddrBus] inst_addr_nxt,
-    output reg almost_avalible,
-    output reg avalible,  //Whether the mem_control part does the right thing.
+    output reg almost_available,
+    output reg available,  //Whether the mem_control part does the right thing.
     output reg[`InstBus] inst,
     output reg[`InstAddrBus] inst_addr_o
     //output reg busy_1,
@@ -32,8 +32,8 @@ module mem_control(
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             cnt <= 2'b11;
-            almost_avalible <= `True;
-            avalible <= `False;
+            almost_available <= `True;
+            available <= `False;
             addr <= 0;
             dout_ram <= 0;
             wr_ram <= 0;
@@ -43,23 +43,23 @@ module mem_control(
             if (cnt == 2'b00) begin
                 inst[7:0] <= din_ram;
                 addr_ram <= addr + 1;
-                avalible <= `True;
+                available <= `True;
                 cnt <= 2'b01;
             end else if (cnt == 2'b01) begin
                 inst[31:24] <= din_ram;
                 addr_ram = addr + 2;
-                avalible = `False;
-                almost_avalible <= `False;
+                available = `False;
+                almost_available <= `False;
                 cnt <= 2'b10;
             end else if (cnt == 2'b10) begin
                 inst[23:16] <= din_ram;
                 addr_ram <= addr + 3;
-                almost_avalible <= `True;
+                almost_available <= `True;
                 cnt <= 2'b11;
             end else if (cnt == 2'b11) begin
                 inst[15:8] <= din_ram;
                 inst_addr_o <= addr;
-                almost_avalible <= `False;
+                almost_available <= `False;
                 
                 addr = inst_addr_i;
                 addr_ram = addr;
