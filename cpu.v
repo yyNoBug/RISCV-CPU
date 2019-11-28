@@ -101,6 +101,10 @@ wire if_stall;
 wire id_stall;
 wire ex_stall;
 wire mem_stall;
+wire pcreg_stall;
+wire ifid_stall;
+wire idex_stall;
+wire exmem_stall;
 
 //Mem-control
 wire[`InstAddrBus] mc_inst_addr_i;
@@ -110,7 +114,7 @@ wire mc_available_o;
 wire[`InstBus] mc_inst_o;
 
 pc_reg pc_reg0(
-    .clk(clk_in), .rst(rst_in), .if_stall(if_stall), .if_pc_i(if_pc_i)
+    .clk(clk_in), .rst(rst_in), .if_stall(pcreg_stall), .if_pc_i(if_pc_i)
 );
 
 iF if0(
@@ -134,7 +138,7 @@ mem_control mem_control0(
 if_id if_id0(
     .clk(clk_in), .rst(rst_in), .if_pc(if_pc_o),
     .if_inst(if_inst_o), .id_pc(id_pc_i),
-    .id_inst(id_inst_i), .id_stall(id_stall)
+    .id_inst(id_inst_i), .id_stall(ifid_stall)
 );
 
 id id0(
@@ -178,7 +182,7 @@ id_ex id_ex0(
     .ex_opr1(ex_opr1_i), .ex_opr2(ex_opr2_i), .ex_opr3(ex_opr3_i),
     .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
 
-    .ex_stall(ex_stall)
+    .ex_stall(idex_stall)
 );
 
 ex ex0(
@@ -203,7 +207,7 @@ ex_mem ex_mem0(
     .mem_wd(mem_wd_i), .mem_wreg(mem_wreg_i),
     .mem_wdata(mem_wdata_i),
 
-    .mem_stall(mem_stall)
+    .mem_stall(exmem_stall)
 );
 
 mem mem0(
@@ -228,7 +232,12 @@ mem_wb mem_wb0(
     .wb_wdata(wb_wdata_i)
 );
 
-
+stall_control stall_ctrl0(
+    .if_stall(if_stall), .id_stall(id_stall),
+    .ex_stall(ex_stall), .mem_stall(mem_stall),
+    .pcreg_stall(pcreg_stall), .ifid_stall(ifid_stall),
+    .idex_stall(idex_stall), .exmem_stall(exmem_stall)
+);
 
 /*
 always @(posedge clk_in)

@@ -24,7 +24,7 @@ module iF(
     assign pc_out = pc_back;
 
     always @ (*) begin
-        if (rst == `RstEnable) begin  // I changed chipenable here
+        if (rst == `RstEnable) begin
             inst_out = 32'h0;
             pc_mem = 0;
             if_stall = `False;
