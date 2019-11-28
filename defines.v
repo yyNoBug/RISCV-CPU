@@ -8,6 +8,7 @@
 `define ReadDisable         1'b0
 `define AluOpBus            7:0
 `define AluFunBus           2:0
+`define AluSelBus           4:0
 `define InstValid           1'b0     
 `define InstInvalid         1'b1
 `define True_v              1'b1
@@ -58,6 +59,19 @@
 `define FUN_AND             3'b111
 
 `define FUN_NOP             3'b000
+
+`define SEL_ADD             4'b0000
+`define SEL_SUB             4'b0000
+`define SEL_SLL             4'b0001
+`define SEL_SLT             4'b0010
+`define SEL_SLTU            4'b0011
+`define SEL_XOR             4'b0100
+`define SEL_SRL             4'b0101
+`define SEL_SRA             4'b0101
+`define SEL_OR              4'b0110
+`define SEL_AND             4'b0111
+`define SEL_LUI             4'b0100
+`define SEL_AUIPC           4'b1001
 
 //与指令储存器ROM有关的宏定义
 `define InstAddrBus         31:0

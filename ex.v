@@ -4,15 +4,14 @@ module ex(
     input wire rst,
 
     // For calculation.
-    input wire[`AluOpBus] aluop_i,
-    input wire[`AluFunBus] alufun_i,
-    input wire[`RegBus] reg1_i,
-    input wire[`RegBus] reg2_i,
+    input wire[`AluSelBus] alusel_i,
+    input wire[`RegBus] opr1_i,
+    input wire[`RegBus] opr2_i,
+    input wire[`ImmBus] opr3_i,
     input wire[`RegAddrBus] wd_i,
-    input wire wreg_i, //此段指令是否有写入的�?终寄存器
-    input wire[`ImmBus] imm_i,
-    input wire[`InstAddrBus] pc_i,
-
+    input wire wreg_i, //此段指令是否有写入的�??终寄存器
+    
+    /*
     // For data-fowarding.
     input wire reg1_re,
     input wire[`RegAddrBus] reg1_i_addr,
@@ -24,6 +23,11 @@ module ex(
     input wire dataf_memwb_we,
     input wire[`RegAddrBus] dataf_memwb_wd,
     input wire[`RegBus] dataf_memwb_data,
+    */
+
+    output reg dataf_ex_we,
+    output reg[`RegAddrBus] dataf_ex_wd,
+    output reg[`RegBus] dataf_ex_data,
 
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
@@ -34,6 +38,7 @@ module ex(
 
     reg[`RegBus] logicout;
     
+    /*
     wire[`RegBus] reg1;
     assign reg1 = ((reg1_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
         && reg1_re == `ReadEnable) ? dataf_exmem_data : (((reg1_i_addr == dataf_memwb_wd)
@@ -43,111 +48,75 @@ module ex(
     assign reg2 = ((reg2_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
         && reg2_re == `ReadEnable) ? dataf_exmem_data : (((reg2_i_addr == dataf_memwb_wd)
         &&  (dataf_memwb_we == `WriteEnable) && reg2_re == `ReadEnable) ? dataf_memwb_data : reg2_i);
+    */
 
     always @ (*) begin
         if (rst == `RstEnable) begin
             logicout = 0;
         end else begin
-            case(aluop_i)
-            `EXE_ORI: begin
-                case(alufun_i)
-                `FUN_ORI: begin
-                    logicout = reg1 | imm_i;
-                end
-                `FUN_ANDI: begin
-                    logicout = reg1 & imm_i;
-                end
-                `FUN_XORI: begin
-                    logicout = reg1 ^ imm_i;
-                end
-                `FUN_ADDI: begin
-                    logicout = reg1 + imm_i;
-                end
-                `FUN_SLTI: begin
-                    if ($signed(reg1) < $signed(imm_i)) 
-                        logicout = reg1;
-                    else logicout = 0;
-                end
-                `FUN_SLTIU: begin
-                    if (reg1 < imm_i) logicout <= reg1;
-                    else logicout = 0;
-                end
-                `FUN_SLLI: begin
-                    logicout = reg1 << imm_i[4:0]; //may be wrong here
-                end
-                `FUN_SRLI: begin
-                    if (imm_i[10] == 1'b0)
-                        logicout = reg1 >>> imm_i[4:0]; //may be wrong here
-                    else
-                        logicout = reg1 >> imm_i[4:0]; //may be wrong here
-                end
-                default: begin
-                    logicout = 0;
-                end
-                endcase
+            case(alusel_i)
+            `SEL_OR: begin
+                logicout = opr1_i | opr2_i;
             end
-            `EXE_OR: begin
-                case(alufun_i)
-                `FUN_ADD: begin
-                    if (imm_i[10] == 1'b0)
-                        logicout = reg1 + reg2;
-                    else
-                        logicout = reg1 - reg2;
-                end
-                `FUN_SLL: begin
-                    logicout = reg1 << reg2[4:0];
-                end
-                `FUN_SRL: begin
-                    if (imm_i[10] == 1'b0)
-                        logicout = reg1 >>> reg2[4:0]; 
-                    else
-                        logicout = reg1 >> reg2[4:0];
-                end
-                `FUN_SLT: begin
-                    if ($signed(reg1) < $signed(reg2)) 
-                        logicout = reg1;
-                    else
-                        logicout = 0;
-                end
-                `FUN_SLTU: begin
-                    if (reg1 < reg2) logicout = reg1;
-                    else logicout = 0;
-                end
-                `FUN_OR: begin
-                    logicout = reg1 | reg2;
-                end
-                `FUN_AND: begin
-                    logicout = reg1 & reg2;
-                end
-                `FUN_XOR: begin
-                    logicout = reg1 ^ reg2;
-                end
-                endcase
+            `SEL_AND: begin
+                logicout = opr1_i & opr2_i;
             end
-            `EXE_LUI: begin
-                logicout = imm_i;
+            `SEL_XOR: begin
+                logicout = opr1_i ^ opr2_i;
             end
-            `EXE_AUIPC: begin
-                logicout = pc_i + imm_i;
+            `SEL_ADD: begin
+                logicout = opr1_i + opr2_i;
+            end
+            `SEL_SLT: begin
+                if ($signed(opr1_i) < $signed(opr2_i)) 
+                    logicout = opr1_i;
+                else logicout = 0;
+            end
+            `SEL_SLTU: begin
+                if (opr1_i < opr2_i) logicout <= opr1_i;
+                else logicout = 0;
+            end
+            `SEL_SLL: begin
+                logicout = opr1_i << opr2_i[4:0]; //may be wrong here
+            end
+            `SEL_SRL: begin
+                if (opr2_i[10] == 1'b0)
+                    logicout = opr1_i >>> opr2_i[4:0]; //may be wrong here
+                else
+                    logicout = opr1_i >> opr2_i[4:0]; //may be wrong here
+            end
+            `SEL_LUI: begin
+                logicout = opr1_i;
+            end
+            `SEL_AUIPC: begin
+                logicout = opr1_i + opr2_i;
             end
             default: begin
+                logicout = 0;
             end
             endcase
         end
     end
 
     always @ (*) begin
-        wd_o = wd_i;
-        wreg_o = wreg_i;
-        ex_stall = `False;
-        case (aluop_i)
-            `EXE_ORI: begin
-                wdata_o = logicout;
-            end
-            default: begin
-                wdata_o = 0;
-            end
-        endcase
+        
+        if (rst == `RstEnable) begin
+            wd_o = 0;
+            wreg_o = 0;
+            wdata_o = 0;
+            dataf_ex_wd = 0;
+            dataf_ex_we = 0;
+            dataf_ex_data = 0;
+            ex_stall = `False;
+        end else begin
+            wd_o = wd_i;
+            wreg_o = wreg_i;
+            wdata_o = logicout;
+            dataf_ex_wd = wd_i;
+            dataf_ex_we = wreg_i;
+            dataf_ex_data = logicout;
+            ex_stall = `False;
+        end
     end
 
 endmodule

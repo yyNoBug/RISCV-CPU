@@ -40,28 +40,20 @@ wire[`InstAddrBus] id_pc_i;
 wire[`InstAddrBus] id_inst_i;
 
 //ID -> ID/EX
-wire[`AluOpBus] id_aluop_o;
-wire[`AluFunBus] id_alufun_o;
-wire[`RegBus] id_reg1_o;
-wire[`RegBus] id_reg2_o;
+wire[`AluOpBus] id_alusel_o;
+wire[`RegBus] id_opr1_o;
+wire[`RegBus] id_opr2_o;
+wire[`ImmBus] id_opr3_o;
 wire id_wreg_o;
 wire[`RegAddrBus] id_wd_o;
-wire[`ImmBus] id_imm_o;
-wire[`InstAddrBus] id_pc_o;
 
 //ID/EX -> EX
-wire[`AluOpBus] ex_aluop_i;
-wire[`AluFunBus] ex_alufun_i;
-wire ex_reg1_re_i;
-wire[`RegAddrBus] ex_reg1_addr_i;
-wire[`RegBus] ex_reg1_i;
-wire ex_reg2_re_i;
-wire[`RegAddrBus] ex_reg2_addr_i;
-wire[`RegBus] ex_reg2_i;
+wire[`AluOpBus] ex_alusel_i;
+wire[`RegBus] ex_opr1_i;
+wire[`RegBus] ex_opr2_i;
+wire[`ImmBus] ex_opr3_i;
 wire ex_wreg_i;
 wire[`RegAddrBus] ex_wd_i;
-wire[`ImmBus] ex_imm_i;
-wire[`InstAddrBus] ex_pc_i;
 
 //EX -> EX/MEM
 wire ex_wreg_o;
@@ -92,12 +84,12 @@ wire[`RegAddrBus] reg1_addr;
 wire[`RegAddrBus] reg2_addr;
 
 //Data-fowarding
-wire dataf_exmem_we;
-wire[`RegAddrBus] dataf_exmem_wd;
-wire[`RegBus] dataf_exmem_data;
-wire dataf_memwb_we;
-wire[`RegAddrBus] dataf_memwb_wd;
-wire[`RegBus] dataf_memwb_data;
+wire dataf_ex_we;
+wire[`RegAddrBus] dataf_ex_wd;
+wire[`RegBus] dataf_ex_data;
+wire dataf_mem_we;
+wire[`RegAddrBus] dataf_mem_wd;
+wire[`RegBus] dataf_mem_data;
 
 //Stall
 /*
@@ -156,10 +148,14 @@ id id0(
     .reg1_addr_o(reg1_addr), .reg2_addr_o(reg2_addr),
     
     //to ID/EX
-    .aluop_o(id_aluop_o), .alufun_o(id_alufun_o),
-    .reg1_o(id_reg1_o), .reg2_o(id_reg2_o),
+    .alusel_o(id_alusel_o),
+    .opr1_o(id_opr1_o), .opr2_o(id_opr2_o), .opr3_o(id_opr3_o),
     .wd_o(id_wd_o), .wreg_o(id_wreg_o),
-    .imm_o(id_imm_o), .pc_o(id_pc_o),
+
+    //data-fowarding
+    .dataf_ex_we(dataf_ex_we), .dataf_ex_wd(dataf_ex_wd),
+    .dataf_ex_data(dataf_ex_data), .dataf_mem_we(dataf_mem_we),
+    .dataf_mem_wd(dataf_mem_wd), .dataf_mem_data(dataf_mem_data),
 
     .id_stall(id_stall)
 );
@@ -174,40 +170,28 @@ regfile regfile0(
 
 id_ex id_ex0(
     .clk(clk_in), .rst(rst_in),
-    .id_aluop(id_aluop_o), .id_alufun(id_alufun_o),
-    .id_reg1_re(reg1_read), .id_reg2_re(reg2_read),
-    .id_reg1_addr(reg1_addr), .id_reg1(id_reg1_o), 
-    .id_reg2_addr(reg2_addr), .id_reg2(id_reg2_o),
+    .id_alusel(id_alusel_o),
+    .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), .id_opr3(id_opr3_o),
     .id_wd(id_wd_o), .id_wreg(id_wreg_o),
-    .id_imm(id_imm_o), .id_pc(id_pc_o),
     
-    .ex_aluop(ex_aluop_i), .ex_alufun(ex_alufun_i),
-    .ex_reg1_re(ex_reg1_re_i), .ex_reg2_re(ex_reg2_re_i),
-    .ex_reg1_addr(ex_reg1_addr_i), .ex_reg1(ex_reg1_i),
-    .ex_reg2_addr(ex_reg2_addr_i), .ex_reg2(ex_reg2_i),
+    .ex_alusel(ex_alusel_i),
+    .ex_opr1(ex_opr1_i), .ex_opr2(ex_opr2_i), .ex_opr3(ex_opr3_i),
     .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
-    .ex_imm(ex_imm_i), .ex_pc(ex_pc_i),
 
     .ex_stall(ex_stall)
 );
 
 ex ex0(
     .rst(rst_in),
-    .aluop_i(ex_aluop_i), .alufun_i(ex_alufun_i),
-    .reg1_re(ex_reg1_re_i), .reg2_re(ex_reg2_re_i),
-    .reg1_i_addr(ex_reg1_addr_i), .reg1_i(ex_reg1_i),
-    .reg2_i_addr(ex_reg2_addr_i), .reg2_i(ex_reg2_i),
+    .alusel_i(ex_alusel_i),
+    .opr1_i(ex_opr1_i), .opr2_i(ex_opr2_i), .opr3_i(ex_opr3_i),
     .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
-    .imm_i(ex_imm_i), .pc_i(ex_pc_i),
+    
     .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
     .wdata_o(ex_wdata_o),
-    
-    .dataf_exmem_we(dataf_exmem_we),
-    .dataf_exmem_wd(dataf_exmem_wd),
-    .dataf_exmem_data(dataf_exmem_data),
-    .dataf_memwb_we(dataf_memwb_we),
-    .dataf_memwb_wd(dataf_memwb_wd),
-    .dataf_memwb_data(dataf_memwb_data),
+
+    .dataf_ex_we(dataf_ex_we), .dataf_ex_wd(dataf_ex_wd),
+    .dataf_ex_data(dataf_ex_data),
 
     .ex_stall(ex_stall)
 );
@@ -218,8 +202,6 @@ ex_mem ex_mem0(
     .ex_wdata(ex_wdata_o),
     .mem_wd(mem_wd_i), .mem_wreg(mem_wreg_i),
     .mem_wdata(mem_wdata_i),
-    .mem_wd_df(dataf_exmem_wd), .mem_wreg_df(dataf_exmem_we),
-    .mem_wdata_df(dataf_exmem_data),
 
     .mem_stall(mem_stall)
 );
@@ -231,6 +213,9 @@ mem mem0(
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
     .wdata_o(mem_wdata_o),
 
+    .dataf_mem_we(dataf_mem_we),
+    .dataf_mem_wd(dataf_mem_wd), .dataf_mem_data(dataf_mem_data),
+
     .mem_stall(mem_stall)
 );
 
@@ -240,9 +225,7 @@ mem_wb mem_wb0(
     .mem_wdata(mem_wdata_o),
 
     .wb_wd(wb_wd_i), .wb_wreg(wb_wreg_i),
-    .wb_wdata(wb_wdata_i),
-    .wb_wd_df(dataf_memwb_wd), .wb_wreg_df(dataf_memwb_we),
-    .wb_wdata_df(dataf_memwb_data)
+    .wb_wdata(wb_wdata_i)
 );
 
 

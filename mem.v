@@ -11,6 +11,10 @@ module mem(
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
 
+    output reg dataf_mem_we,
+    output reg[`RegAddrBus] dataf_mem_wd,
+    output reg[`RegBus] dataf_mem_data,
+
     output reg mem_stall
 );
 
@@ -19,12 +23,18 @@ module mem(
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
-            mem_stall = 0;
+            dataf_mem_wd = 0;
+            dataf_mem_we = 0;
+            dataf_mem_data = 0;
+            mem_stall = `False;
         end else begin
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = wdata_i;
-            mem_stall = 0;
+            dataf_mem_wd = wd_i;
+            dataf_mem_we = wreg_i;
+            dataf_mem_data = wdata_i;
+            mem_stall = `False;
         end
     end
     
