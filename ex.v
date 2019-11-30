@@ -8,22 +8,13 @@ module ex(
     input wire[`RegBus] opr1_i,
     input wire[`RegBus] opr2_i,
     input wire[`ImmBus] opr3_i,
+    input wire[`InstAddrBus] opr4_i,
     input wire[`RegAddrBus] wd_i,
     input wire wreg_i, //此段指令是否有写入的�??终寄存器
-    
-    /*
-    // For data-fowarding.
-    input wire reg1_re,
-    input wire[`RegAddrBus] reg1_i_addr,
-    input wire reg2_re,
-    input wire[`RegAddrBus] reg2_i_addr,
-    input wire dataf_exmem_we, //If there isn't any error here, I'm somehow confident that data-fowarding will work properly.
-    input wire[`RegAddrBus] dataf_exmem_wd,
-    input wire[`RegBus] dataf_exmem_data,
-    input wire dataf_memwb_we,
-    input wire[`RegAddrBus] dataf_memwb_wd,
-    input wire[`RegBus] dataf_memwb_data,
-    */
+
+    // For branch instructions.
+    output reg branch_interception,
+    output reg[`InstAddrBus] npc,
 
     output reg dataf_ex_we,
     output reg[`RegAddrBus] dataf_ex_wd,
@@ -37,18 +28,6 @@ module ex(
 );
 
     reg[`RegBus] logicout;
-    
-    /*
-    wire[`RegBus] reg1;
-    assign reg1 = ((reg1_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
-        && reg1_re == `ReadEnable) ? dataf_exmem_data : (((reg1_i_addr == dataf_memwb_wd)
-        &&  (dataf_memwb_we == `WriteEnable) && reg1_re == `ReadEnable) ? dataf_memwb_data : reg1_i);
-    
-    wire[`RegBus] reg2;
-    assign reg2 = ((reg2_i_addr == dataf_exmem_wd) &&  (dataf_exmem_we == `WriteEnable)
-        && reg2_re == `ReadEnable) ? dataf_exmem_data : (((reg2_i_addr == dataf_memwb_wd)
-        &&  (dataf_memwb_we == `WriteEnable) && reg2_re == `ReadEnable) ? dataf_memwb_data : reg2_i);
-    */
 
     always @ (*) begin
         if (rst == `RstEnable) begin
@@ -91,6 +70,64 @@ module ex(
             `SEL_AUIPC: begin
                 logicout = opr1_i + opr2_i;
             end
+            `SEL_JAL: begin
+                logicout = opr4_i + 4;
+                npc = opr1_i + opr3_i;
+                branch_interception = `True;
+            end
+            `SEL_JALR: begin
+                logicout = opr4_i + 4;
+                npc = opr1_i + opr2_i;
+                branch_interception = `True;
+            end
+            `SEL_BEQ: begin
+                logicout = 0;
+                if (opr1_i == opr2_i) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_BNE: begin
+                logicout = 0;
+                if (opr1_i != opr2_i) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_BLTU: begin
+                logicout = 0;
+                if (opr1_i < opr2_i) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_BGEU: begin
+                logicout = 0;
+                if (opr1_i >= opr2_i) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_BLT: begin
+                logicout = 0;
+                if ($signed(opr1_i) < $signed(opr2_i)) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_BGE: begin
+                logicout = 0;
+                if ($signed(opr1_i) >= $signed(opr2_i)) begin
+                    npc = opr3_i + opr4_i;
+                    branch_interception = `True;
+                end
+            end
+            `SEL_LB: begin // A problem to be solved: data-fowarding.
+
+            end
+            `SEL_LH: begin
+                
+            end
             default: begin
                 logicout = 0;
             end
@@ -99,7 +136,6 @@ module ex(
     end
 
     always @ (*) begin
-        
         if (rst == `RstEnable) begin
             wd_o = 0;
             wreg_o = 0;

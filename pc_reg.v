@@ -9,22 +9,11 @@ module pc_reg(
     //output reg ce
 );
 
-    /*
-    always @ (posedge clk) begin
-        if (rst == `RstEnable) begin
-            ce <= `ChipDisable;
-        end else begin
-            ce <= `ChipEnable;
-        end
-    end
-    */
-
     always @ (posedge clk) begin
         if (rst == `True) begin
             if_pc_i <= 32'h00000000;
         end else if (if_stall == `False) begin
             if_pc_i <= if_pc_i + 4'h4;
-            //if_npc_i <= if_npc_i + 8'h4;
         end else begin
         end
     end

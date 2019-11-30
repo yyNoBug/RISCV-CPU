@@ -44,6 +44,7 @@ wire[`AluOpBus] id_alusel_o;
 wire[`RegBus] id_opr1_o;
 wire[`RegBus] id_opr2_o;
 wire[`ImmBus] id_opr3_o;
+wire[`InstAddrBus] id_opr4_o;
 wire id_wreg_o;
 wire[`RegAddrBus] id_wd_o;
 
@@ -52,6 +53,7 @@ wire[`AluOpBus] ex_alusel_i;
 wire[`RegBus] ex_opr1_i;
 wire[`RegBus] ex_opr2_i;
 wire[`ImmBus] ex_opr3_i;
+wire[`InstAddrBus] ex_opr4_o;
 wire ex_wreg_i;
 wire[`RegAddrBus] ex_wd_i;
 
@@ -153,7 +155,8 @@ id id0(
     
     //to ID/EX
     .alusel_o(id_alusel_o),
-    .opr1_o(id_opr1_o), .opr2_o(id_opr2_o), .opr3_o(id_opr3_o),
+    .opr1_o(id_opr1_o), .opr2_o(id_opr2_o), 
+    .opr3_o(id_opr3_o), .opr4_o(id_opr4_o),
     .wd_o(id_wd_o), .wreg_o(id_wreg_o),
 
     //data-fowarding
@@ -175,11 +178,13 @@ regfile regfile0(
 id_ex id_ex0(
     .clk(clk_in), .rst(rst_in),
     .id_alusel(id_alusel_o),
-    .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), .id_opr3(id_opr3_o),
+    .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), 
+    .id_opr3(id_opr3_o), .id_opr4(id_opr4_o),
     .id_wd(id_wd_o), .id_wreg(id_wreg_o),
     
     .ex_alusel(ex_alusel_i),
-    .ex_opr1(ex_opr1_i), .ex_opr2(ex_opr2_i), .ex_opr3(ex_opr3_i),
+    .ex_opr1(ex_opr1_i), .ex_opr2(ex_opr2_i),
+    .ex_opr3(ex_opr3_i), .ex_opr4(ex_opr4_i),
     .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
 
     .ex_stall(idex_stall)
@@ -188,7 +193,8 @@ id_ex id_ex0(
 ex ex0(
     .rst(rst_in),
     .alusel_i(ex_alusel_i),
-    .opr1_i(ex_opr1_i), .opr2_i(ex_opr2_i), .opr3_i(ex_opr3_i),
+    .opr1_i(ex_opr1_i), .opr2_i(ex_opr2_i),
+    .opr3_i(ex_opr3_i), .opr4_i(ex_opr4_i),
     .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
     
     .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),

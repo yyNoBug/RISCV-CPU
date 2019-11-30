@@ -26,10 +26,8 @@ module iF(
     always @ (*) begin
         if (rst == `RstEnable) begin
             inst_out = 32'h0;
-        end else begin
-            if (inst_available == `True) begin
-                inst_out = inst_in;
-            end
+        end else if (inst_available == `True) begin
+            inst_out = inst_in;
         end
     end
 
@@ -37,13 +35,11 @@ module iF(
         if (rst == `RstEnable) begin
             pc_mem = 0;
             if_stall = `False;
+        end else if (addr_needed) begin
+            pc_mem = pc_in;
+            if_stall = `False;
         end else begin
             if_stall = `True;
-            if (addr_needed) begin
-                pc_mem = pc_in;
-                if_stall = `False;
-            end else
-                if_stall = `True;
         end
     end
 

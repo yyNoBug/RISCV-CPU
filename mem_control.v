@@ -9,7 +9,6 @@ module mem_control(
     output reg[7:0] dout_ram,
     output reg[`InstAddrBus] addr_ram,
     output reg wr_ram,
-
     
     // interaction with pc
     input wire[`InstAddrBus] inst_addr_i,
@@ -27,7 +26,7 @@ module mem_control(
 
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
-            cnt <= 2'b00;
+            cnt <= 3'b000; //Since I begin with 0 here, the first instruction will step twice.
             almost_available <= `False;
             available <= `False;
             addr <= 0;

@@ -8,7 +8,7 @@
 `define ReadDisable         1'b0
 `define AluOpBus            7:0
 `define AluFunBus           2:0
-`define AluSelBus           4:0
+`define AluSelBus           5:0
 `define InstValid           1'b0     
 `define InstInvalid         1'b1
 `define True_v              1'b1
@@ -32,46 +32,38 @@
 `define EXE_JAL             7'b1101111 //指令JAL的指令码
 `define EXE_JALR            7'b1100111 //指令JALR的指令码
 `define EXE_BEQ             7'b1100011 //分支指令的指令码
+`define EXE_LOAD            7'b0000011
+`define EXE_STORE           7'b0100011
 `define EXE_NOP             7'b0000000
 
-`define EXE_OR_OP           8'b00100101
-`define EXE_NOP_OP          8'b00000000
-
-`define FUN_ADDI            3'b000
-`define FUN_SLTI            3'b010
-`define FUN_SLTIU           3'b011
-`define FUN_XORI            3'b100
-`define FUN_ORI             3'b110
-`define FUN_ANDI            3'b111
-`define FUN_SLLI            3'b001
-`define FUN_SRLI            3'b101
-`define FUN_SRAI            3'b101
-
-`define FUN_ADD             3'b000
-`define FUN_SUB             3'b000
-`define FUN_SLL             3'b001
-`define FUN_SLT             3'b010
-`define FUN_SLTU            3'b011
-`define FUN_XOR             3'b100
-`define FUN_SRL             3'b101
-`define FUN_SRA             3'b101
-`define FUN_OR              3'b110
-`define FUN_AND             3'b111
-
-`define FUN_NOP             3'b000
-
-`define SEL_ADD             4'b0000
-`define SEL_SUB             4'b0000
-`define SEL_SLL             4'b0001
-`define SEL_SLT             4'b0010
-`define SEL_SLTU            4'b0011
-`define SEL_XOR             4'b0100
-`define SEL_SRL             4'b0101
-`define SEL_SRA             4'b0101
-`define SEL_OR              4'b0110
-`define SEL_AND             4'b0111
-`define SEL_LUI             4'b0100
-`define SEL_AUIPC           4'b1001
+`define SEL_ADD             5'b00000
+`define SEL_SUB             5'b00000
+`define SEL_SLL             5'b00001
+`define SEL_SLT             5'b00010
+`define SEL_SLTU            5'b00011
+`define SEL_XOR             5'b00100
+`define SEL_SRL             5'b00101
+`define SEL_SRA             5'b00101
+`define SEL_OR              5'b00110
+`define SEL_AND             5'b00111
+`define SEL_LUI             5'b01100
+`define SEL_AUIPC           5'b01001
+`define SEL_JAL             5'b01010
+`define SEL_JALR            5'b01011
+`define SEL_BEQ             5'b10000
+`define SEL_BNE             5'b10001
+`define SEL_BLT             5'b10100
+`define SEL_BGE             5'b10101
+`define SEL_BLTU            5'b10110
+`define SEL_BGEU            5'b10111
+`define SEL_LB              5'b11000
+`define SEL_LH              5'b11001
+`define SEL_LW              5'b11010
+`define SEL_LBU             5'b11100
+`define SEL_LHU             5'b11101
+`define SEL_SB              5'b11111
+`define SEL_SH              5'b11110
+`define SEL_SW              5'b11101
 
 //与指令储存器ROM有关的宏定义
 `define InstAddrBus         31:0
