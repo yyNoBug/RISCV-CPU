@@ -58,7 +58,7 @@ module mem_control(
                 cnt <= 2'b11;
             end else if (cnt == 2'b11) begin
                 inst[15:8] <= din_ram;
-                inst_addr_o <= addr;
+                inst_addr_o <= addr; // Give back to PC
                 almost_available <= `False;
                 
                 addr = inst_addr_i;

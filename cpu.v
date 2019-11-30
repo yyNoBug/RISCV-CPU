@@ -119,7 +119,7 @@ pc_reg pc_reg0(
 
 iF if0(
     .rst(rst_in), .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
-    .inst_almost_available(mc_almost_available_o),
+    .addr_needed(mc_almost_available_o),
     .inst_available(mc_available_o), .inst_in(mc_inst_o),
     .pc_back(mc_inst_addr_o), .pc_mem(mc_inst_addr_i), .if_stall(if_stall)
 );

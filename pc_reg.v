@@ -20,9 +20,8 @@ module pc_reg(
     */
 
     always @ (posedge clk) begin
-        if (rst == `True) begin // I've changed the chipenable here
+        if (rst == `True) begin
             if_pc_i <= 32'h00000000;
-            //if_npc_i <= 32'h00000000;
         end else if (if_stall == `False) begin
             if_pc_i <= if_pc_i + 4'h4;
             //if_npc_i <= if_npc_i + 8'h4;
