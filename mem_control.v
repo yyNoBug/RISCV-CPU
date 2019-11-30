@@ -12,15 +12,11 @@ module mem_control(
 
     
     // interaction with pc
-    //input wire inst_needed,
     input wire[`InstAddrBus] inst_addr_i,
-    //input wire[`InstAddrBus] inst_addr_nxt,
     output reg almost_available,
-    output reg available,  //Whether the mem_control part does the right thing.
+    output reg available,
     output reg[`InstBus] inst,
     output reg[`InstAddrBus] inst_addr_o
-    //output reg busy_1,
-    //output reg busy_2
 );
 
     reg[2:0] cnt;
@@ -31,15 +27,44 @@ module mem_control(
 
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
-            cnt <= 2'b11;
-            almost_available <= `True;
+            cnt <= 2'b00;
+            almost_available <= `False;
             available <= `False;
             addr <= 0;
             dout_ram <= 0;
             wr_ram <= 0;
             inst <= 0;
             inst_addr_o <= 0;
+            
         end else begin
+            if (cnt == 3'b000) begin
+                addr <= inst_addr_i;
+                addr_ram = inst_addr_i;
+                almost_available <= `False;
+                available <= `False;
+                cnt <= cnt + 1;
+            end else if (cnt == 3'b001) begin
+                addr_ram = addr + 1;
+                cnt <= cnt + 1;
+            end else if (cnt == 3'b010) begin
+                inst[31:24] <= din_ram;
+                addr_ram = addr + 2;
+                cnt <= cnt + 1;
+            end else if (cnt == 3'b011) begin
+                inst[23:16] <= din_ram;
+                addr_ram <= addr + 3;
+                cnt <= cnt + 1;
+            end else if (cnt == 3'b100) begin
+                inst[15:8] <= din_ram;
+                cnt <= cnt + 1;
+            end else if (cnt == 3'b101) begin
+                inst[7:0] <= din_ram;
+                cnt <= 0;
+                almost_available <= 1;
+                available <= 1;
+            end
+
+            /*
             if (cnt == 2'b00) begin
                 inst[7:0] <= din_ram;
                 addr_ram <= addr + 1;
@@ -49,7 +74,6 @@ module mem_control(
                 inst[31:24] <= din_ram;
                 addr_ram = addr + 2;
                 available = `False;
-                almost_available <= `False;
                 cnt <= 2'b10;
             end else if (cnt == 2'b10) begin
                 inst[23:16] <= din_ram;
@@ -66,6 +90,8 @@ module mem_control(
                 cnt = 2'b00;
                 wr_ram = `Read;
             end
+            */
+
         end
     end
 
