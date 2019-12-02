@@ -85,14 +85,6 @@ wire[`RegBus] reg2_data;
 wire[`RegAddrBus] reg1_addr;
 wire[`RegAddrBus] reg2_addr;
 
-//Data-fowarding
-wire dataf_ex_we;
-wire[`RegAddrBus] dataf_ex_wd;
-wire[`RegBus] dataf_ex_data;
-wire dataf_mem_we;
-wire[`RegAddrBus] dataf_mem_wd;
-wire[`RegBus] dataf_mem_data;
-
 //Stall
 /*
 NOTICE: For stall correctness.
@@ -170,9 +162,9 @@ id id0(
     .wd_o(id_wd_o), .wreg_o(id_wreg_o),
 
     //data-fowarding
-    .dataf_ex_we(dataf_ex_we), .dataf_ex_wd(dataf_ex_wd),
-    .dataf_ex_data(dataf_ex_data), .dataf_mem_we(dataf_mem_we),
-    .dataf_mem_wd(dataf_mem_wd), .dataf_mem_data(dataf_mem_data),
+    .dataf_ex_we(ex_wreg_o), .dataf_ex_wd(ex_wd_o),
+    .dataf_ex_data(ex_wdata_o), .dataf_mem_we(mem_wreg_o),
+    .dataf_mem_wd(mem_wd_o), .dataf_mem_data(mem_wdata_o),
 
     .id_stall(id_stall)
 );
@@ -210,9 +202,6 @@ ex ex0(
     .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
     .wdata_o(ex_wdata_o),
 
-    .dataf_ex_we(dataf_ex_we), .dataf_ex_wd(dataf_ex_wd),
-    .dataf_ex_data(dataf_ex_data),
-
     .branch_interception(br), .npc(npc),
 
     .ex_stall(ex_stall)
@@ -234,9 +223,6 @@ mem mem0(
     .wdata_i(mem_wdata_i),
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
     .wdata_o(mem_wdata_o),
-
-    .dataf_mem_we(dataf_mem_we),
-    .dataf_mem_wd(dataf_mem_wd), .dataf_mem_data(dataf_mem_data),
 
     .mem_stall(mem_stall)
 );

@@ -10,19 +10,17 @@ module ex(
     input wire[`ImmBus] opr3_i,
     input wire[`InstAddrBus] opr4_i,
     input wire[`RegAddrBus] wd_i,
-    input wire wreg_i, //此段指令是否有写入的�??终寄存器
+    input wire wreg_i, //此段指令是否有写入的寄存器
 
     // For branch instructions.
     output reg branch_interception,
     output reg[`InstAddrBus] npc,
 
-    output reg dataf_ex_we,
-    output reg[`RegAddrBus] dataf_ex_wd,
-    output reg[`RegBus] dataf_ex_data,
-
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
+
+    output reg[`MemAddrBus] memaddr_o,
 
     output reg ex_stall
 );
@@ -124,10 +122,11 @@ module ex(
                 end
             end
             `SEL_LB: begin // A problem to be solved: data-fowarding.
-
+                memaddr_o = opr1_i + opr2_i;
             end
             `SEL_LH: begin
-                
+                memaddr_o = opr1_i + opr3_i;
+                logicout = opr2_i; // Note here: I'm just using the wire, but it does not go into reg.
             end
             default: begin
                 logicout = 0;
@@ -141,17 +140,11 @@ module ex(
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
-            dataf_ex_wd = 0;
-            dataf_ex_we = 0;
-            dataf_ex_data = 0;
             ex_stall = `False;
         end else begin
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = logicout;
-            dataf_ex_wd = wd_i;
-            dataf_ex_we = wreg_i;
-            dataf_ex_data = logicout;
             ex_stall = `False;
         end
     end
