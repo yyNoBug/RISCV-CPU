@@ -33,6 +33,7 @@ module ex(
         if (rst == `RstEnable) begin
             logicout = 0;
         end else begin
+            branch_interception = 0;
             case(alusel_i)
             `SEL_OR: begin
                 logicout = opr1_i | opr2_i;
@@ -62,7 +63,7 @@ module ex(
                 if (opr2_i[10] == 1'b0)
                     logicout = opr1_i >>> opr2_i[4:0]; //may be wrong here
                 else
-                    logicout = opr1_i >> opr2_i[4:0]; //may be wrong here
+                    logicout = $signed(opr1_i) >> opr2_i[4:0]; //may be wrong here
             end
             `SEL_LUI: begin
                 logicout = opr1_i;
@@ -72,12 +73,12 @@ module ex(
             end
             `SEL_JAL: begin
                 logicout = opr4_i + 4;
-                npc = opr1_i + opr3_i;
+                npc = opr1_i + opr4_i;
                 branch_interception = `True;
             end
             `SEL_JALR: begin
                 logicout = opr4_i + 4;
-                npc = opr1_i + opr2_i;
+                npc = (opr1_i + opr2_i) && (-2); //not sure
                 branch_interception = `True;
             end
             `SEL_BEQ: begin

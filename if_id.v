@@ -3,6 +3,7 @@
 module if_id(
     input wire clk,
     input wire rst,
+    input wire branch_interception,
     input wire id_stall,
     input wire[`InstAddrBus] if_pc,
     input wire[`InstBus] if_inst,
@@ -11,7 +12,7 @@ module if_id(
 );
 
     always @ (posedge clk) begin
-        if (rst == `RstEnable) begin
+        if (rst || branch_interception) begin
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
         end else if(id_stall == `False) begin

@@ -15,7 +15,8 @@ module iF(
     //output wire inst_needed,
     output reg[`InstAddrBus] pc_mem,
 
-    output reg if_stall
+    output reg if_stall,
+    input wire branch_interception
 );
 
     // For correctness, if IF gives out a PC address before give out the last instruction, 
@@ -24,7 +25,7 @@ module iF(
     assign pc_out = pc_back;
 
     always @ (*) begin
-        if (rst == `RstEnable) begin
+        if (rst || branch_interception) begin
             inst_out = 32'h0;
         end else if (inst_available == `True) begin
             inst_out = inst_in;
@@ -32,7 +33,7 @@ module iF(
     end
 
     always @ (*) begin
-        if (rst == `RstEnable) begin
+        if (rst || branch_interception) begin
             pc_mem = 0;
             if_stall = `False;
         end else if (addr_needed) begin

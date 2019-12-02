@@ -3,6 +3,7 @@
 module mem_control(
     input wire clk,
     input wire rst,
+    input wire branch_interception,
 
     // interation with ram
     input wire[7:0] din_ram,
@@ -10,7 +11,7 @@ module mem_control(
     output reg[`InstAddrBus] addr_ram,
     output reg wr_ram,
     
-    // interaction with pc
+    // interaction with if
     input wire[`InstAddrBus] inst_addr_i,
     output reg almost_available,
     output reg available,
@@ -26,7 +27,7 @@ module mem_control(
 
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
-            cnt <= 3'b000; //Since I begin with 0 here, the first instruction will step twice.
+            cnt <= 3'b110; //Since I begin with 0 here, the first instruction will step twice.
             almost_available <= `False;
             available <= `False;
             addr <= 0;
@@ -36,7 +37,11 @@ module mem_control(
             inst_addr_o <= 0;
             
         end else begin
-            if (cnt == 3'b000) begin
+            if (branch_interception) begin
+                almost_available <= 1;
+                cnt <= 0;
+                //cnt <= 3'b110;
+            end else if (cnt == 3'b000) begin
                 addr <= inst_addr_i;
                 addr_ram = inst_addr_i;
                 almost_available <= `False;
@@ -58,9 +63,13 @@ module mem_control(
                 cnt <= cnt + 1;
             end else if (cnt == 3'b101) begin
                 inst[7:0] <= din_ram;
+                inst_addr_o <= addr;
                 cnt <= 0;
                 almost_available <= 1;
                 available <= 1;
+            end else if (cnt == 3'b110) begin
+                almost_available <= 1;
+                cnt <= 0;
             end
 
             /*

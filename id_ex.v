@@ -3,6 +3,7 @@
 module id_ex(
     input wire clk,
     input wire rst,
+    input wire branch_interception,
     input wire ex_stall,
 
     input wire[`AluSelBus] id_alusel,
@@ -23,7 +24,7 @@ module id_ex(
 );
 
     always @ (posedge clk) begin
-        if (rst == `RstEnable) begin
+        if (rst || branch_interception) begin
             ex_alusel <= 0;
             ex_opr1 <= 0;
             ex_opr2 <= 0;
@@ -36,7 +37,7 @@ module id_ex(
             ex_opr1 <= id_opr1;
             ex_opr2 <= id_opr2;
             ex_opr3 <= id_opr3;
-            ex_opr3 <= id_opr4;
+            ex_opr4 <= id_opr4;
             ex_wd <= id_wd;
             ex_wreg <= id_wreg;
         end

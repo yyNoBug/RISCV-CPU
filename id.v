@@ -2,6 +2,8 @@
 
 module id(
     input wire rst,
+    input wire branch_interception,
+
     input wire[`InstAddrBus] pc_i,
     input wire[`InstBus] inst_i,
 
@@ -39,7 +41,7 @@ module id(
     reg instvalid;
 
     always @ (*) begin
-        if (rst == `RstEnable) begin
+        if (rst || branch_interception) begin
             alusel_o = 0;
             wd_o = 0;
             wreg_o = 0;

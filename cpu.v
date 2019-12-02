@@ -53,7 +53,7 @@ wire[`AluOpBus] ex_alusel_i;
 wire[`RegBus] ex_opr1_i;
 wire[`RegBus] ex_opr2_i;
 wire[`ImmBus] ex_opr3_i;
-wire[`InstAddrBus] ex_opr4_o;
+wire[`InstAddrBus] ex_opr4_i;
 wire ex_wreg_i;
 wire[`RegAddrBus] ex_wd_i;
 
@@ -108,6 +108,11 @@ wire ifid_stall;
 wire idex_stall;
 wire exmem_stall;
 
+
+// Branch
+wire br;
+wire[`InstAddrBus] npc;
+
 //Mem-control
 wire[`InstAddrBus] mc_inst_addr_i;
 wire[`InstAddrBus] mc_inst_addr_o;
@@ -116,11 +121,14 @@ wire mc_available_o;
 wire[`InstBus] mc_inst_o;
 
 pc_reg pc_reg0(
-    .clk(clk_in), .rst(rst_in), .if_stall(pcreg_stall), .if_pc_i(if_pc_i)
+    .clk(clk_in), .rst(rst_in), 
+    .branch_interception(br), .npc(npc),
+    .if_stall(pcreg_stall), .if_pc_i(if_pc_i)
 );
 
 iF if0(
-    .rst(rst_in), .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
+    .rst(rst_in), .branch_interception(br),
+    .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
     .addr_needed(mc_almost_available_o),
     .inst_available(mc_available_o), .inst_in(mc_inst_o),
     .pc_back(mc_inst_addr_o), .pc_mem(mc_inst_addr_i), .if_stall(if_stall)
@@ -129,7 +137,7 @@ iF if0(
 //assign mem_a = pc;
 
 mem_control mem_control0(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst_in), .branch_interception(br),
     .dout_ram(mem_dout), .din_ram(mem_din),
     .addr_ram(mem_a), .wr_ram(mem_wr),
     .inst_addr_i(mc_inst_addr_i), .inst_addr_o(mc_inst_addr_o),
@@ -138,13 +146,15 @@ mem_control mem_control0(
 );
 
 if_id if_id0(
-    .clk(clk_in), .rst(rst_in), .if_pc(if_pc_o),
+    .clk(clk_in), .rst(rst_in), .branch_interception(br),
+    .if_pc(if_pc_o),
     .if_inst(if_inst_o), .id_pc(id_pc_i),
     .id_inst(id_inst_i), .id_stall(ifid_stall)
 );
 
 id id0(
-    .rst(rst_in), .pc_i(id_pc_i), .inst_i(id_inst_i),
+    .rst(rst_in), .pc_i(id_pc_i), .branch_interception(br),
+    .inst_i(id_inst_i),
     
     //from RegFile
     .reg1_data_i(reg1_data), .reg2_data_i(reg2_data),
@@ -176,7 +186,7 @@ regfile regfile0(
 );
 
 id_ex id_ex0(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst_in), .branch_interception(br),
     .id_alusel(id_alusel_o),
     .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), 
     .id_opr3(id_opr3_o), .id_opr4(id_opr4_o),
@@ -202,6 +212,8 @@ ex ex0(
 
     .dataf_ex_we(dataf_ex_we), .dataf_ex_wd(dataf_ex_wd),
     .dataf_ex_data(dataf_ex_data),
+
+    .branch_interception(br), .npc(npc),
 
     .ex_stall(ex_stall)
 );
