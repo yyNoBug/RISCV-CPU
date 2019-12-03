@@ -6,21 +6,21 @@ module mem(
     input wire[`RegAddrBus] wd_i,
     input wire wreg_i,
     input wire[`RegBus] wdata_i,
-
     input wire[`MemAddrBus] memaddr_i,
     input wire memwr_i, // 0 for load, 1 for store.
-    input wire[1:0] memcnf_i, // 0 for not using mem, 1 for B, 2 for H, 3 for W. 
+    input wire[1:0] memcnf_i, // 0 for not using mem, 1 for B, 2 for H, 3 for W.
     input wire memsigned_i, // 0 for unsigned, 1 for signed, only valid in load instructions.
 
+    // Interaction with mem-ctrl.
     input wire addr_needed,
     input wire mem_available,
     input wire[`InstBus] data_in,
-    input wire[`InstAddrBus] pc_back,
     output reg[`InstAddrBus] addr_mem,
     output reg wr_mem,
     output reg[`MemDataBus] data_mem,
-    output reg[1:0] conf_mem,
+    output reg[1:0] cnf_mem,
 
+    // Items to give out.
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
@@ -30,17 +30,25 @@ module mem(
 );
 
     reg mem_working;
+    reg[`RegAddrBus] wd_mem;
+    reg wreg_mem;
 
     always @ (*) begin
         if (rst) begin
             addr_mem = 0;
             wr_mem = 0;
             data_mem = 0;
-            conf_mem = 0;
+            cnf_mem = 0;
+            wd_mem = 0;
+            wreg_mem = 0;
             mem_stall = 0;
-        end else if (addr_needed && !memcnf_i) begin
+        end else if (addr_needed && memcnf_i) begin
             addr_mem = memaddr_i;
-            data_mem = conf_mem;
+            wr_mem = memwr_i;
+            data_mem = wdata_i;
+            cnf_mem = memcnf_i;
+            wd_mem = wd_i;
+            wreg_mem = wreg_i;
             mem_stall = 0;
         end else if (mem_working) begin
             mem_stall = 1;
@@ -50,10 +58,9 @@ module mem(
     end
 
     always @ (*) begin
-        
-        if (rst == `RstEnable) begin
+        if (rst == `RstEnable) begin // BUG here: mem-working cannot stay stable.
             mem_working = 0;
-        end else if (addr_needed && !memcnf_i) begin
+        end else if (addr_needed && memcnf_i) begin
             mem_working = 1;
         end
 
@@ -65,10 +72,10 @@ module mem(
 
         end else if (mem_working && mem_available) begin
             mem_working = 0; //The items below are all wrong.
-            wd_o = wd_i;
-            wreg_o = wreg_i;
-            wdata_o = wdata_i;
-            memcnf_o = memcnf_i;
+            wd_o = wd_mem;
+            wreg_o = wreg_mem;
+            wdata_o = data_mem;
+            memcnf_o = cnf_mem;
             if (memwr_i == 0) begin //actually this should be memwr_o, items below are similar.
                 wdata_o = data_in;
             end
@@ -85,17 +92,12 @@ module mem(
                 endcase
             end
         end else if (mem_working) begin
-            wd_o = 0;
-            wreg_o = 0;
-            wdata_o = 0;
         end else if (!mem_working && memcnf_i) begin
-            wd_o = 0;
-            wreg_o = 0;
-            wdata_o = 0;
         end else if (!mem_working && !memcnf_i) begin
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = wdata_i;
+            //$display("hi");
         end
     end
 
@@ -113,5 +115,6 @@ module mem(
             mem_stall = `False;
         end
     end
-*/  
+*/
+
 endmodule

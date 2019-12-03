@@ -11,26 +11,26 @@ module mem_control(
     output reg[`InstAddrBus] addr_ram,
     output reg wr_ram,
     
+    output reg almost_available,
+    output reg[`InstBus] inst,
+
     // interaction with if
     input wire[`InstAddrBus] inst_addr_i,
-    output reg almost_available,
     output reg available,
-    output reg[`InstBus] inst,
     output reg[`InstAddrBus] inst_addr_o,
 
     // interaction with mem
-    input wire datals_i,
+    input wire datawr_i,
     input wire[`MemAddrBus] data_addr_i,
-    input wire[`MemDataBus] data_i
+    input wire[`MemDataBus] data_i,
+    input wire[1:0] data_cnf_i
 
 );
 
     reg[2:0] cnt;
     reg[`InstAddrBus] addr;
-    reg[1:0] state; // 00 for free; 01 for inst; 10 for load; 11 for store.
-    //reg jdg;
-    //reg[`InstAddrBus] nxt_addr;
-
+    reg busy_inst;
+    reg busy_mem;
 
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
@@ -48,11 +48,43 @@ module mem_control(
                 almost_available <= 1;
                 cnt <= 0;
             end else if (cnt == 3'b000) begin
-                addr <= inst_addr_i;
-                addr_ram = inst_addr_i;
-                almost_available <= `False;
-                available <= `False;
-                cnt <= cnt + 1;
+                case (data_cnf_i)
+                2'b00: begin
+                    addr <= inst_addr_i;
+                    addr_ram <= inst_addr_i;
+                    wr_ram <= 0;
+                    almost_available <= `False;
+                    available <= `False;
+                    cnt <= cnt + 1;
+                end
+                2'b01: begin
+                    addr <= data_addr_i;
+                    addr_ram <= data_addr_i + 3;
+                    dout_ram <= data_i;
+                    wr_ram <= datawr_i;
+                    almost_available <= `False;
+                    available <= `False;
+                    cnt <= cnt + 4;
+                end
+                2'b10: begin
+                    addr <= data_addr_i;
+                    addr_ram <= data_addr_i + 2;
+                    dout_ram <= data_i;
+                    wr_ram <= datawr_i;
+                    almost_available <= `False;
+                    available <= `False;
+                    cnt <= cnt + 3;
+                end
+                2'b11: begin
+                    addr <= data_addr_i;
+                    addr_ram <= data_addr_i;
+                    dout_ram <= data_i;
+                    wr_ram <= datawr_i;
+                    almost_available <= `False;
+                    available <= `False;
+                    cnt <= cnt + 1;
+                end
+                endcase
             end else if (cnt == 3'b001) begin
                 addr_ram = addr + 1;
                 cnt <= cnt + 1;
@@ -105,7 +137,6 @@ module mem_control(
                 wr_ram = `Read;
             end
             */
-
         end
     end
 
