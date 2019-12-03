@@ -11,8 +11,6 @@
 `define AluSelBus           5:0
 `define InstValid           1'b0     
 `define InstInvalid         1'b1
-`define ChipEnable          1'b1
-`define ChipDisable         1'b0
 `define True                1'b1
 `define False               1'b0
 `define Read                1'b0
@@ -63,6 +61,7 @@
 `define InstAddrBus         31:0
 `define InstBus             31:0
 `define MemAddrBus          31:0
+`define MemDataBus          31:0
 `define InstMemNum          16384 //128Kb一共有16384个字节
 `define InstMemNumLog2      14
 

@@ -20,7 +20,11 @@ module ex(
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
 
+    // For mem stage.
     output reg[`MemAddrBus] memaddr_o,
+    output reg memwr_o, // 0 for load, 1 for store.
+    output reg[1:0] memcnf_o, // 0 for not using mem, 1 for B, 2 for H, 3 for W. 
+    output reg memsigned_o, // 0 for unsigned, 1 for signed, only valid in load instructions.
 
     output reg ex_stall
 );
@@ -29,9 +33,12 @@ module ex(
 
     always @ (*) begin
         if (rst == `RstEnable) begin
+            branch_interception = 0;
             logicout = 0;
+            memcnf_o = 0;
         end else begin
             branch_interception = 0;
+            memcnf_o = 0;
             case(alusel_i)
             `SEL_OR: begin
                 logicout = opr1_i | opr2_i;
@@ -123,10 +130,51 @@ module ex(
             end
             `SEL_LB: begin // A problem to be solved: data-fowarding.
                 memaddr_o = opr1_i + opr2_i;
+                memwr_o = 0;
+                memcnf_o = 2'b01;
+                memsigned_o = 1;
             end
-            `SEL_LH: begin
-                memaddr_o = opr1_i + opr3_i;
+            `SEL_LH: begin // A problem to be solved: data-fowarding.
+                memaddr_o = opr1_i + opr2_i;
+                memwr_o = 0;
+                memcnf_o = 2'b10;
+                memsigned_o = 1;
+            end
+            `SEL_LW: begin // A problem to be solved: data-fowarding.
+                memaddr_o = opr1_i + opr2_i;
+                memwr_o = 0;
+                memcnf_o = 2'b11;
+                memsigned_o = 1;
+            end
+            `SEL_LBU: begin // A problem to be solved: data-fowarding.
+                memaddr_o = opr1_i + opr2_i;
+                memwr_o = 0;
+                memcnf_o = 2'b01;
+                memsigned_o = 0;
+            end
+            `SEL_LHU: begin // A problem to be solved: data-fowarding.
+                memaddr_o = opr1_i + opr2_i;
+                memwr_o = 0;
+                memcnf_o = 2'b10;
+                memsigned_o = 0;
+            end
+            `SEL_SB: begin
                 logicout = opr2_i; // Note here: I'm just using the wire, but it does not go into reg.
+                memaddr_o = opr1_i + opr3_i;
+                memwr_o = 1;
+                memcnf_o = 2'b01;
+            end
+            `SEL_SH: begin
+                logicout = opr2_i; // Note here: I'm just using the wire, but it does not go into reg.
+                memaddr_o = opr1_i + opr3_i;
+                memwr_o = 1;
+                memcnf_o = 2'b10;
+            end
+            `SEL_SW: begin
+                logicout = opr2_i; // Note here: I'm just using the wire, but it does not go into reg.
+                memaddr_o = opr1_i + opr3_i;
+                memwr_o = 1;
+                memcnf_o = 2'b11;
             end
             default: begin
                 logicout = 0;

@@ -61,16 +61,25 @@ wire[`RegAddrBus] ex_wd_i;
 wire ex_wreg_o;
 wire[`RegAddrBus] ex_wd_o;
 wire[`RegBus] ex_wdata_o;
+wire[`MemAddrBus] ex_memaddr_o;
+wire ex_memwr_o;
+wire[1:0] ex_memcnf_o;
+wire ex_memsigned_o;
 
 //EX/MEM -> MEM
 wire mem_wreg_i;
 wire[`RegAddrBus] mem_wd_i;
 wire[`RegBus] mem_wdata_i;
+wire[`MemAddrBus] mem_memaddr_i;
+wire mem_memwr_i;
+wire[1:0] mem_memcnf_i;
+wire mem_memsigned_i;
 
 //MEM -> MEM/WB
 wire mem_wreg_o;
 wire[`RegAddrBus] mem_wd_o;
 wire[`RegBus] mem_wdata_o;
+wire[1:0] mem_memcnf_o;
 
 //MEM/WB -> WB
 wire wb_wreg_i;
@@ -141,7 +150,7 @@ if_id if_id0(
     .clk(clk_in), .rst(rst_in), .branch_interception(br),
     .if_pc(if_pc_o),
     .if_inst(if_inst_o), .id_pc(id_pc_i),
-    .id_inst(id_inst_i), .id_stall(ifid_stall)
+    .id_inst(id_inst_i), .ifid_stall(ifid_stall)
 );
 
 id id0(
@@ -163,8 +172,9 @@ id id0(
 
     //data-fowarding
     .dataf_ex_we(ex_wreg_o), .dataf_ex_wd(ex_wd_o),
-    .dataf_ex_data(ex_wdata_o), .dataf_mem_we(mem_wreg_o),
-    .dataf_mem_wd(mem_wd_o), .dataf_mem_data(mem_wdata_o),
+    .dataf_ex_data(ex_wdata_o), .dataf_ex_memcnf(ex_memcnf_o),
+    .dataf_mem_we(mem_wreg_o), .dataf_mem_wd(mem_wd_o), 
+    .dataf_mem_data(mem_wdata_o), .dataf_mem_memcnf(mem_memcnf_o),
 
     .id_stall(id_stall)
 );
@@ -189,7 +199,7 @@ id_ex id_ex0(
     .ex_opr3(ex_opr3_i), .ex_opr4(ex_opr4_i),
     .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
 
-    .ex_stall(idex_stall)
+    .idex_stall(idex_stall)
 );
 
 ex ex0(
@@ -201,6 +211,8 @@ ex ex0(
     
     .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
     .wdata_o(ex_wdata_o),
+    .memaddr_o(ex_memaddr_o), .memwr_o(ex_memwr_o),
+    .memcnf_o(ex_memcnf_o), .memsigned_o(ex_memsigned_o),
 
     .branch_interception(br), .npc(npc),
 
@@ -211,18 +223,26 @@ ex_mem ex_mem0(
     .clk(clk_in), .rst(rst_in),
     .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o),
     .ex_wdata(ex_wdata_o),
+    .ex_memaddr(ex_memaddr_o), .ex_memwr(ex_memwr_o),
+    .ex_memcnf(ex_memcnf_o), .ex_memsigned(ex_memsigned_o),
     .mem_wd(mem_wd_i), .mem_wreg(mem_wreg_i),
     .mem_wdata(mem_wdata_i),
+    .mem_memaddr(mem_memaddr_i), .mem_memwr(mem_memwr_i),
+    .mem_memcnf(mem_memcnf_i), .mem_memsigned(mem_memsigned_i),
 
-    .mem_stall(exmem_stall)
+    .exmem_stall(exmem_stall)
 );
 
 mem mem0(
     .rst(rst_in),
     .wd_i(mem_wd_i), .wreg_i(mem_wreg_i),
     .wdata_i(mem_wdata_i),
+
+    .memaddr_i(mem_memaddr_i), .memwr_i(mem_memwr_i),
+    .memcnf_i(mem_memcnf_i), .memsigned_i(mem_memsigned_i),
+
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
-    .wdata_o(mem_wdata_o),
+    .wdata_o(mem_wdata_o), .memcnf_o(dataf_mem_memcnf),
 
     .mem_stall(mem_stall)
 );

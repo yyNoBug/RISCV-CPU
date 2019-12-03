@@ -16,11 +16,18 @@ module mem_control(
     output reg almost_available,
     output reg available,
     output reg[`InstBus] inst,
-    output reg[`InstAddrBus] inst_addr_o
+    output reg[`InstAddrBus] inst_addr_o,
+
+    // interaction with mem
+    input wire datals_i,
+    input wire[`MemAddrBus] data_addr_i,
+    input wire[`MemDataBus] data_i
+
 );
 
     reg[2:0] cnt;
     reg[`InstAddrBus] addr;
+    reg[1:0] state; // 00 for free; 01 for inst; 10 for load; 11 for store.
     //reg jdg;
     //reg[`InstAddrBus] nxt_addr;
 
@@ -40,7 +47,6 @@ module mem_control(
             if (branch_interception) begin
                 almost_available <= 1;
                 cnt <= 0;
-                //cnt <= 3'b110;
             end else if (cnt == 3'b000) begin
                 addr <= inst_addr_i;
                 addr_ram = inst_addr_i;

@@ -34,7 +34,7 @@ module regfile (
 
     always @ (posedge clk) begin
         if (rst == `RstDisable) begin
-            if ((we == `WriteEnable) && (waddr != `RegNumLog2'h0))  begin
+            if ((we == `WriteEnable) && (waddr != 0))  begin
                 regs[waddr] <= wdata;
             end
         end

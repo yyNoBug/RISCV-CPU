@@ -15,7 +15,7 @@ module pc_reg(
         if (rst == `True) begin
             if_pc_i <= 32'h00000000;
         end else if (branch_interception) begin 
-            if_pc_i <= npc; // May cause error, since it doesn't care whether if stalls.
+            if_pc_i <= npc;
         end else if (if_stall == `False) begin
             if_pc_i <= if_pc_i + 4'h4;
         end else begin

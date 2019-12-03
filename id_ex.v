@@ -4,7 +4,7 @@ module id_ex(
     input wire clk,
     input wire rst,
     input wire branch_interception,
-    input wire ex_stall,
+    input wire idex_stall,
 
     input wire[`AluSelBus] id_alusel,
     input wire[`RegBus] id_opr1,
@@ -32,7 +32,7 @@ module id_ex(
             ex_opr4 <= 0;
             ex_wd <= 0;
             ex_wreg <= 0;
-        end else begin
+        end else if (!idex_stall) begin
             ex_alusel <= id_alusel;
             ex_opr1 <= id_opr1;
             ex_opr2 <= id_opr2;
@@ -40,6 +40,7 @@ module id_ex(
             ex_opr4 <= id_opr4;
             ex_wd <= id_wd;
             ex_wreg <= id_wreg;
+        end else begin
         end
     end
 endmodule

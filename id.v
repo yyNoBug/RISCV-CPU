@@ -28,17 +28,21 @@ module id(
     input wire dataf_ex_we, //If there isn't any error here, I'm 50% confident that data-fowarding will work properly.
     input wire[`RegAddrBus] dataf_ex_wd,
     input wire[`RegBus] dataf_ex_data,
+    input wire[1:0] dataf_ex_memcnf,
     input wire dataf_mem_we,
     input wire[`RegAddrBus] dataf_mem_wd,
     input wire[`RegBus] dataf_mem_data,
+    input wire[1:0] dataf_mem_memcnf,
 
-    output reg id_stall
+    output wire id_stall
 );
 
     wire[6:0] op = inst_i[6:0];
     reg[`ImmBus] imm; 
 
-    reg instvalid;
+    reg flag1;
+    reg flag2;
+    assign id_stall = flag1 | flag2;
 
     always @ (*) begin
         if (rst || branch_interception) begin
@@ -51,8 +55,6 @@ module id(
             reg2_read_o = 0;
             reg1_addr_o = 0;
             reg2_addr_o = 0;
-            instvalid = `InstInvalid;
-            id_stall = `False;
         
         end else begin
             alusel_o[2:0] = inst_i[14:12];
@@ -63,8 +65,6 @@ module id(
             reg2_read_o = 0;
             reg1_addr_o = inst_i[19:15];
             reg2_addr_o = inst_i[24:20];
-            instvalid = `InstValid;
-            id_stall = `False;
 
             case (op)
             `EXE_ORI: begin
@@ -73,33 +73,28 @@ module id(
                 reg1_read_o = 1'b1;
                 reg2_read_o = 1'b0;
                 imm = {{20{inst_i[31]}}, inst_i[31:20]};
-                instvalid = `InstValid;
             end
             `EXE_OR: begin
                 alusel_o[4:3] = 1'b00;
                 wreg_o = `WriteEnable;
                 reg1_read_o = 1'b1;
                 reg2_read_o = 1'b1;
-                instvalid = `InstValid;
             end
             `EXE_LUI: begin
                 alusel_o = `SEL_LUI;
                 wreg_o = `WriteEnable;
                 imm = {inst_i[31:12], {12{1'b0}}};
-                instvalid = `InstValid;
             end
             `EXE_AUIPC: begin
                 alusel_o = `SEL_AUIPC;
                 wreg_o = `WriteEnable;
                 imm = {inst_i[31:12], {12{1'b0}}};
-                instvalid = `InstValid;
             end
             // Below items have not been finished.
             `EXE_JAL: begin
                 alusel_o = `SEL_JAL;
                 wreg_o = `WriteEnable;
                 imm = {{12{inst_i[31]}}, inst_i[19:12], inst_i[20], inst_i[30:21], 1'b0};
-                instvalid = `InstValid;
             end
             `EXE_JALR: begin
                 alusel_o = `SEL_JALR;
@@ -129,20 +124,26 @@ module id(
             end
             default: begin
                 alusel_o = 0;
-                instvalid = `False;
             end
             endcase
         end
     end
 
     always @ (*) begin
+        flag1 = `False;
         if (rst == `RstEnable) begin
             opr1_o = 0;
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == 0)) begin
             opr1_o = 0;
+        end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd 
+        && dataf_ex_we && dataf_ex_memcnf) begin
+            flag1 = `True;
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_ex_wd) 
         && (dataf_ex_we == `WriteEnable)) begin
             opr1_o = dataf_ex_data;
+        end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
+        && dataf_mem_we && dataf_mem_memcnf) begin
+            flag2 = `True;
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_mem_wd) 
         && (dataf_mem_we == `WriteEnable)) begin
             opr1_o = dataf_mem_data;
@@ -156,13 +157,20 @@ module id(
     end
 
     always @ (*) begin
+        flag2 = `False;
         if (rst == `RstEnable) begin
             opr2_o = 0;
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == 0)) begin
             opr2_o = 0;
+        end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd 
+        && dataf_ex_we && dataf_ex_memcnf) begin
+            flag2 = `True;
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_ex_wd) 
         && (dataf_ex_we == `WriteEnable)) begin
             opr2_o = dataf_ex_data;
+        end else if (reg2_read_o && reg2_addr_o == dataf_mem_wd 
+        && dataf_mem_we && dataf_mem_memcnf) begin
+            flag2 = `True;
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_mem_wd) 
         && (dataf_mem_we == `WriteEnable)) begin
             opr2_o = dataf_mem_data;
