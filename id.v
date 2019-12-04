@@ -146,15 +146,15 @@ module id(
             opr1_o = 0;
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == 0)) begin
             opr1_o = 0;
-        end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd 
+        end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
-            flag1 = `True;
+            flag1 = `True; // BUG HERE: Stalling here is useless!! The instruction always goes out!!
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_ex_wd) 
         && (dataf_ex_we == `WriteEnable)) begin
             opr1_o = dataf_ex_data;
         end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
         && dataf_mem_we && dataf_mem_memcnf) begin
-            flag2 = `True;
+            flag1 = `True; // BUG HERE: mem already gets the true value!! Needn't stall here!!
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_mem_wd) 
         && (dataf_mem_we == `WriteEnable)) begin
             opr1_o = dataf_mem_data;
@@ -162,8 +162,6 @@ module id(
             opr1_o = reg1_data_i;
         end else if (reg1_read_o == 1'b0) begin
             opr1_o = imm;
-        end else begin
-            opr1_o = 0; // why can the program go here?
         end
     end
 
@@ -173,7 +171,7 @@ module id(
             opr2_o = 0;
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == 0)) begin
             opr2_o = 0;
-        end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd 
+        end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
             flag2 = `True;
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_ex_wd) 
@@ -189,8 +187,6 @@ module id(
             opr2_o = reg2_data_i;
         end else if (reg2_read_o == 1'b0) begin
             opr2_o = imm;
-        end else begin
-            opr2_o = 0; // why can the program go here?
         end
     end
 

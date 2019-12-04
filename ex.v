@@ -58,7 +58,7 @@ module ex(
                 else logicout = 0;
             end
             `SEL_SLTU: begin
-                if (opr1_i < opr2_i) logicout <= opr1_i;
+                if (opr1_i < opr2_i) logicout = opr1_i;
                 else logicout = 0;
             end
             `SEL_SLL: begin

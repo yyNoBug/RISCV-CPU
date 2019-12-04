@@ -103,12 +103,25 @@ module mem_control(
                 dout_ram <= data[23:16];
                 addr_ram = addr + 2;
                 cnt <= cnt + 1;
+                if (wr == 0 && cnf == 2'b01) begin
+                    data_available <= `True;
+                    almost_available <= `True;
+                    busy_data <= `False;
+                    cnt <= 0;
+                end else begin
+                    cnt <= cnt + 1;
+                end
             end else if (cnt == 3'b011) begin
                 inst[15:8] <= din_ram;
                 dout_ram <= data[31:24];
                 addr_ram <= addr + 3;
                 cnt <= cnt + 1;
                 if (wr == 1 && cnf == 2'b11) begin
+                    data_available <= `True;
+                    almost_available <= `True;
+                    busy_data <= `False;
+                    cnt <= 0;
+                end else if (wr == 0 && cnf == 2'b10) begin
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;

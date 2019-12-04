@@ -62,6 +62,17 @@ module mem(
                 default: begin
                 end
                 endcase
+            end else begin
+                case(cnf_mem)
+                2'b01: begin
+                    wdata_o = {{24{1'b0}}, wdata_o[7:0]};
+                end
+                2'b10: begin
+                    wdata_o = {{12{1'b0}}, wdata_o[11:0]};
+                end
+                default: begin
+                end
+                endcase
             end
         end else if (!mem_working && !memcnf_i) begin
             wd_o = wd_i;
