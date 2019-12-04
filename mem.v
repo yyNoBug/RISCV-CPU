@@ -40,8 +40,10 @@ module mem(
             wreg_o = 0;
             wdata_o = 0;
             memcnf_o = 0;
+        end else if (mem_working) begin // For correctness, maybe NOP should be given out.
         end else if (mem_available) begin
-            // Note here: Please assure the items below will not be refreshed by almost_available signal.
+            // Note here: Please make sure the items below will not be refreshed by almost_available signal.
+            // Warning: Please make sure the following things will work properly even if blocked.
             wd_o = wd_mem;
             wreg_o = wreg_mem;
             wdata_o = data_mem;
@@ -61,14 +63,15 @@ module mem(
                 end
                 endcase
             end
-        end else if (mem_working) begin
         end else if (!mem_working && !memcnf_i) begin
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = wdata_i;
+            memcnf_o = 0;
         end else if (!mem_working && memcnf_i) begin
         end
 
+        // Interaction with mem-control.
         if (rst) begin
             addr_mem = 0;
             wr_mem = 0;
@@ -77,7 +80,9 @@ module mem(
             wd_mem = 0;
             wreg_mem = 0;
             mem_stall = 0;
-        end else if (addr_needed && memcnf_i) begin // BUG here: if there are no new instructions, mem will run forever!
+        end else if (mem_working) begin
+            mem_stall = 1;
+        end else if (addr_needed && memcnf_i) begin // Warning: if 2 mem instructions block, mem will run forever!
             addr_mem = memaddr_i;
             wr_mem = memwr_i;
             data_mem = wdata_i;
@@ -86,9 +91,10 @@ module mem(
             wreg_mem = wreg_i;
             signed_mem = memsigned_i;
             mem_stall = 0;
-        end else if (mem_working) begin
+        end else if (memcnf_i) begin
             mem_stall = 1;
         end else begin
+            cnf_mem = 0;
             mem_stall = 0;
         end
     end

@@ -187,7 +187,7 @@ module id(
     always @ (*) begin
         if (rst == `RstEnable) begin
             opr3_o = 0;
-        end else if(reg1_read_o == 1'b0 && reg2_read_o == 1'b0) begin
+        end else if(reg1_read_o == 1'b1 && reg2_read_o == 1'b1) begin
             opr3_o = imm;
         end else begin
             opr3_o = 0;

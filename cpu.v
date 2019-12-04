@@ -40,7 +40,7 @@ wire[`InstAddrBus] id_pc_i;
 wire[`InstAddrBus] id_inst_i;
 
 //ID -> ID/EX
-wire[`AluOpBus] id_alusel_o;
+wire[`AluSelBus] id_alusel_o;
 wire[`RegBus] id_opr1_o;
 wire[`RegBus] id_opr2_o;
 wire[`ImmBus] id_opr3_o;
@@ -49,7 +49,7 @@ wire id_wreg_o;
 wire[`RegAddrBus] id_wd_o;
 
 //ID/EX -> EX
-wire[`AluOpBus] ex_alusel_i;
+wire[`AluSelBus] ex_alusel_i;
 wire[`RegBus] ex_opr1_i;
 wire[`RegBus] ex_opr2_i;
 wire[`ImmBus] ex_opr3_i;

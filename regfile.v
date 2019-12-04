@@ -22,6 +22,7 @@ module regfile (
     reg[`RegBus] regs[0 : `RegNum - 1];
 
     //the paragraph is only testing
+    /*
     always @ (*) begin
         if (rst == `RstEnable) begin
             for (integer i = 0; i < `RegNum; i = i + 1) begin
@@ -30,7 +31,7 @@ module regfile (
             end
         end
     end
-
+    */
 
     always @ (posedge clk) begin
         if (rst == `RstDisable) begin

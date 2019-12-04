@@ -83,7 +83,7 @@ module ex(
             end
             `SEL_JALR: begin
                 logicout = opr4_i + 4;
-                npc = (opr1_i + opr2_i) && (-2); //not sure
+                npc = (opr1_i + opr2_i) & (-2); //not sure
                 branch_interception = `True;
             end
             `SEL_BEQ: begin
