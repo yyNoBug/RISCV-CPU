@@ -115,16 +115,19 @@ wire br;
 wire[`InstAddrBus] npc;
 
 //Mem-control
+wire mc_almost_available_o;
+wire[`InstBus] mc_inst_o;
+
 wire[`InstAddrBus] mc_inst_addr_i;
 wire[`InstAddrBus] mc_inst_addr_o;
-wire mc_almost_available_o;
-wire mc_available_o;
-wire[`InstBus] mc_inst_o;
+wire mc_inst_available_o;
 
 wire mc_datawr_i;
 wire[`MemAddrBus] mc_data_addr_i;
 wire[`MemDataBus] mc_data_i;
 wire[1:0] mc_data_cnf_i;
+wire mc_busy_data;
+wire mc_data_available_o;
 
 
 pc_reg pc_reg0(
@@ -137,7 +140,7 @@ iF if0(
     .rst(rst_in), .branch_interception(br),
     .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
     .addr_needed(mc_almost_available_o), .memcnf(mem_memcnf_i),
-    .inst_available(mc_available_o), .inst_in(mc_inst_o),
+    .inst_available(mc_inst_available_o), .inst_in(mc_inst_o),
     .pc_back(mc_inst_addr_o), .pc_mem(mc_inst_addr_i), .if_stall(if_stall)
 );
 
@@ -145,12 +148,15 @@ mem_control mem_control0(
     .clk(clk_in), .rst(rst_in), .branch_interception(br),
     .dout_ram(mem_dout), .din_ram(mem_din),
     .addr_ram(mem_a), .wr_ram(mem_wr),
+    
     .inst_addr_i(mc_inst_addr_i), .inst_addr_o(mc_inst_addr_o),
+    .ifid_stall(ifid_stall),
     .almost_available(mc_almost_available_o),
-    .available(mc_available_o), .inst(mc_inst_o),
+    .inst_available(mc_inst_available_o), .inst(mc_inst_o),
 
     .datawr_i(mc_datawr_i), .data_addr_i(mc_data_addr_i),
-    .data_i(mc_data_i), .data_cnf_i(mc_data_cnf_i)
+    .data_i(mc_data_i), .data_cnf_i(mc_data_cnf_i),
+    .busy_data(mc_busy_data), .data_available(mc_data_available_o)
 );
 
 if_id if_id0(
@@ -248,11 +254,13 @@ mem mem0(
     .memaddr_i(mem_memaddr_i), .memwr_i(mem_memwr_i),
     .memcnf_i(mem_memcnf_i), .memsigned_i(mem_memsigned_i),
 
+    .addr_needed(mc_almost_available_o), .mem_available(mc_data_available_o),
+    .mem_working(mc_busy_data), .data_in(mc_inst_o),
     .addr_mem(mc_data_addr_i), .wr_mem(mc_datawr_i),
     .data_mem(mc_data_i), .cnf_mem(mc_data_cnf_i),
 
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
-    .wdata_o(mem_wdata_o), .memcnf_o(dataf_mem_memcnf),
+    .wdata_o(mem_wdata_o), .memcnf_o(mem_memcnf_o),
 
     .mem_stall(mem_stall)
 );

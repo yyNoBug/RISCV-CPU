@@ -4,7 +4,7 @@ module iF(
     input wire rst,
 
     input wire[`InstAddrBus] pc_in, // from pc_reg
-    output wire[`InstAddrBus] pc_out, // to IF/ID
+    output reg[`InstAddrBus] pc_out, // to IF/ID
     output reg[`InstBus] inst_out,
 
     // interation with memcontrol
@@ -22,7 +22,7 @@ module iF(
     // For correctness, if IF gives out a PC address before give out the last instruction, 
     // that PC address has to be correct (i.e. go to the right branch).
 
-    assign pc_out = pc_back;
+    //assign pc_out = pc_back; // Not used.
 
     always @ (*) begin
         if (rst || branch_interception) begin
@@ -37,7 +37,8 @@ module iF(
             pc_mem = 0;
             if_stall = `False;
         end else if (addr_needed && !memcnf) begin // BUG here: if something else blocked PC, instructions will run more than once.
-            pc_mem = pc_in;
+            pc_out = pc_mem;
+            pc_mem = pc_in;  // Assert the two sentences work properly.
             if_stall = `False;
         end else begin
             if_stall = `True;

@@ -116,7 +116,7 @@ module id(
                 imm = {{20{inst_i[31]}} ,inst_i[31:20]};
             end
             `EXE_STORE: begin
-                alusel_o[4:3] = 2'b10;
+                alusel_o[4:3] = 2'b11;
                 alusel_o[2:0] = ~alusel_o[2:0];
                 reg1_read_o = 1;
                 reg2_read_o = 1;
@@ -129,6 +129,7 @@ module id(
         end
     end
 
+    // BUG here: an instruction might get the data it calculates by data-forwarding.
     always @ (*) begin
         flag1 = `False;
         if (rst == `RstEnable) begin

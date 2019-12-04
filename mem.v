@@ -14,6 +14,7 @@ module mem(
     // Interaction with mem-ctrl.
     input wire addr_needed,
     input wire mem_available,
+    input wire mem_working,
     input wire[`InstBus] data_in,
     output reg[`InstAddrBus] addr_mem,
     output reg wr_mem,
@@ -29,58 +30,27 @@ module mem(
     output reg mem_stall
 );
 
-    reg mem_working;
     reg[`RegAddrBus] wd_mem;
     reg wreg_mem;
+    reg signed_mem;
 
     always @ (*) begin
-        if (rst) begin
-            addr_mem = 0;
-            wr_mem = 0;
-            data_mem = 0;
-            cnf_mem = 0;
-            wd_mem = 0;
-            wreg_mem = 0;
-            mem_stall = 0;
-        end else if (addr_needed && memcnf_i) begin
-            addr_mem = memaddr_i;
-            wr_mem = memwr_i;
-            data_mem = wdata_i;
-            cnf_mem = memcnf_i;
-            wd_mem = wd_i;
-            wreg_mem = wreg_i;
-            mem_stall = 0;
-        end else if (mem_working) begin
-            mem_stall = 1;
-        end else begin
-            mem_stall = 0;
-        end
-    end
-
-    always @ (*) begin
-        if (rst == `RstEnable) begin // BUG here: mem-working cannot stay stable.
-            mem_working = 0;
-        end else if (addr_needed && memcnf_i) begin
-            mem_working = 1;
-        end
-
         if (rst == `RstEnable) begin
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
             memcnf_o = 0;
-
-        end else if (mem_working && mem_available) begin
-            mem_working = 0; //The items below are all wrong.
+        end else if (mem_available) begin
+            // Note here: Please assure the items below will not be refreshed by almost_available signal.
             wd_o = wd_mem;
             wreg_o = wreg_mem;
             wdata_o = data_mem;
             memcnf_o = cnf_mem;
-            if (memwr_i == 0) begin //actually this should be memwr_o, items below are similar.
+            if (wr_mem == 0) begin
                 wdata_o = data_in;
             end
-            if (memsigned_i) begin
-                case(memcnf_i)
+            if (signed_mem) begin
+                case(cnf_mem)
                 2'b01: begin
                     wdata_o = {{24{wdata_o[7]}}, wdata_o[7:0]};
                 end
@@ -92,12 +62,34 @@ module mem(
                 endcase
             end
         end else if (mem_working) begin
-        end else if (!mem_working && memcnf_i) begin
         end else if (!mem_working && !memcnf_i) begin
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = wdata_i;
-            //$display("hi");
+        end else if (!mem_working && memcnf_i) begin
+        end
+
+        if (rst) begin
+            addr_mem = 0;
+            wr_mem = 0;
+            data_mem = 0;
+            cnf_mem = 0;
+            wd_mem = 0;
+            wreg_mem = 0;
+            mem_stall = 0;
+        end else if (addr_needed && memcnf_i) begin // BUG here: if there are no new instructions, mem will run forever!
+            addr_mem = memaddr_i;
+            wr_mem = memwr_i;
+            data_mem = wdata_i;
+            cnf_mem = memcnf_i;
+            wd_mem = wd_i;
+            wreg_mem = wreg_i;
+            signed_mem = memsigned_i;
+            mem_stall = 0;
+        end else if (mem_working) begin
+            mem_stall = 1;
+        end else begin
+            mem_stall = 0;
         end
     end
 
