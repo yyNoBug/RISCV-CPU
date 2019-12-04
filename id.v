@@ -22,7 +22,7 @@ module id(
     output reg[`ImmBus] opr3_o,
     output reg[`InstAddrBus] opr4_o,
     output reg[`RegAddrBus] wd_o,
-    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存�??????????
+    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存�???????????
 
     // For data-fowarding.
     input wire dataf_ex_we, //If there isn't any error here, I'm 50% confident that data-fowarding will work properly.
@@ -68,7 +68,7 @@ module id(
 
             case (op)
             `EXE_ORI: begin
-                alusel_o[3] = 1'b0;
+                alusel_o[4:3] = 1'b00;
                 wreg_o = `WriteEnable;
                 reg1_read_o = 1'b1;
                 reg2_read_o = 1'b0;
@@ -90,7 +90,6 @@ module id(
                 wreg_o = `WriteEnable;
                 imm = {inst_i[31:12], {12{1'b0}}};
             end
-            // Below items have not been finished.
             `EXE_JAL: begin
                 alusel_o = `SEL_JAL;
                 wreg_o = `WriteEnable;
@@ -104,7 +103,6 @@ module id(
             end
             `EXE_BEQ: begin
                 alusel_o[4:3] = 2'b10;
-                wreg_o = `WriteEnable;
                 reg1_read_o = 1;
                 reg2_read_o = 1;
                 imm = {{20{inst_i[31]}}, inst_i[7], inst_i[30:25], inst_i[11:8], 1'b0};
@@ -116,8 +114,20 @@ module id(
                 imm = {{20{inst_i[31]}} ,inst_i[31:20]};
             end
             `EXE_STORE: begin
-                alusel_o[4:3] = 2'b11;
-                alusel_o[2:0] = ~alusel_o[2:0];
+                case(inst_i[14:12])
+                3'b000: begin
+                    alusel_o = `SEL_SB;
+                end
+                3'b001: begin
+                    alusel_o = `SEL_SH;
+                end
+                3'b010: begin
+                    alusel_o = `SEL_SW;
+                end
+                default: begin
+                    $display("BOOM!");
+                end
+                endcase
                 reg1_read_o = 1;
                 reg2_read_o = 1;
                 imm = {{20{inst_i[31]}} ,inst_i[31:25], inst_i[11:7]};
@@ -129,7 +139,7 @@ module id(
         end
     end
 
-    // BUG here: an instruction might get the data it calculates by data-forwarding.
+    // For correctness: an instruction must not get the data it calculates by data-forwarding.
     always @ (*) begin
         flag1 = `False;
         if (rst == `RstEnable) begin

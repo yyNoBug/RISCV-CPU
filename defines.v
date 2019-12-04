@@ -55,7 +55,7 @@
 `define SEL_LHU             5'b11101
 `define SEL_SB              5'b11111
 `define SEL_SH              5'b11110
-`define SEL_SW              5'b11101
+`define SEL_SW              5'b11011
 
 //与指令储存器ROM有关的宏定义
 `define InstAddrBus         31:0

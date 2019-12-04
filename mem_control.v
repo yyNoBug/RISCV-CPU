@@ -76,7 +76,7 @@ module mem_control(
                     addr <= data_addr_i;
                     addr_ram <= data_addr_i;
                     data <= data_i;
-                    dout_ram <= data_i[7:0]; // For correctness, you should ensure data_i stays unchange.
+                    dout_ram <= data_i[7:0];
                     wr <= datawr_i;
                     wr_ram <= datawr_i;
                     if (datawr_i == 1 && data_cnf_i == 2'b01) begin
@@ -105,7 +105,7 @@ module mem_control(
                 cnt <= cnt + 1;
             end else if (cnt == 3'b011) begin
                 inst[15:8] <= din_ram;
-                dout_ram <= data[31:24];                
+                dout_ram <= data[31:24];
                 addr_ram <= addr + 3;
                 cnt <= cnt + 1;
                 if (wr == 1 && cnf == 2'b11) begin

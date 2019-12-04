@@ -74,7 +74,7 @@ module ex(
                 logicout = opr1_i;
             end
             `SEL_AUIPC: begin
-                logicout = opr1_i + opr2_i;
+                logicout = opr1_i + opr4_i;
             end
             `SEL_JAL: begin
                 logicout = opr4_i + 4;

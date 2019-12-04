@@ -3,17 +3,15 @@
 module regfile (
     input wire clk,
     input wire rst,
-    //写端�??
+
     input wire we,
     input wire[`RegAddrBus] waddr,
     input wire[`RegBus] wdata,
 
-    //读端�??1
     input wire re1,
     input wire[`RegAddrBus] raddr1,
     output reg[`RegBus] rdata1,
 
-    //读端�??2
     input wire re2,
     input wire[`RegAddrBus] raddr2,
     output reg[`RegBus] rdata2
