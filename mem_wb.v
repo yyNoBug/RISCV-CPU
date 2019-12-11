@@ -7,6 +7,7 @@ module mem_wb(
     input wire[`RegAddrBus] mem_wd,
     input wire mem_wreg,
     input wire[`RegBus] mem_wdata,
+    input wire[`InstBus] mem_inst,
 
     output reg[`RegAddrBus] wb_wd,
     output reg wb_wreg,

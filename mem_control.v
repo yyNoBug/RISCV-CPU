@@ -62,7 +62,7 @@ module mem_control(
                 data_available <= `False;
                 cnf <= data_cnf_i;
                 if (data_cnf_i == 2'b00) begin
-                    if (ifid_stall) begin
+                    if (ifid_stall) begin // The awkward thing is for the stalling problem of pc_reg.
                         almost_available <= 1;
                     end else begin
                         addr <= inst_addr_i;

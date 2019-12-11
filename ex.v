@@ -10,7 +10,8 @@ module ex(
     input wire[`ImmBus] opr3_i,
     input wire[`InstAddrBus] opr4_i,
     input wire[`RegAddrBus] wd_i,
-    input wire wreg_i, //此段指令是否有写入的寄存器
+    input wire wreg_i, //此段指令是否有写入的寄存�?
+    input wire[`InstBus] inst_i,
 
     // For branch instructions.
     output reg branch_interception,
@@ -19,6 +20,7 @@ module ex(
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
+    output reg[`InstBus] inst_o,
 
     // For mem stage.
     output reg[`MemAddrBus] memaddr_o,
@@ -35,10 +37,16 @@ module ex(
         if (rst == `RstEnable) begin
             branch_interception = 0;
             logicout = 0;
+            memaddr_o = 0;
             memcnf_o = 0;
+            memsigned_o = 0;
+            inst_o = 0;
         end else begin
             branch_interception = 0;
+            memaddr_o = 0;
             memcnf_o = 0;
+            memsigned_o = 0;
+            inst_o = inst_i;
             case(alusel_i)
             `SEL_OR: begin
                 logicout = opr1_i | opr2_i;

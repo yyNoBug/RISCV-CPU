@@ -15,7 +15,7 @@ module if_id(
         if (rst || branch_interception) begin
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
-        end else if(ifid_stall == `False) begin
+        end else if (!ifid_stall) begin
             id_pc <= if_pc;
             id_inst <= if_inst;
         end else begin

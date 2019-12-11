@@ -22,7 +22,8 @@ module id(
     output reg[`ImmBus] opr3_o,
     output reg[`InstAddrBus] opr4_o,
     output reg[`RegAddrBus] wd_o,
-    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存�???????????
+    output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存器
+    output reg[`InstBus] inst_o, // for debug use
 
     // For data-fowarding.
     input wire dataf_ex_we, //If there isn't any error here, I'm 50% confident that data-fowarding will work properly.
@@ -32,7 +33,7 @@ module id(
     input wire dataf_mem_we,
     input wire[`RegAddrBus] dataf_mem_wd,
     input wire[`RegBus] dataf_mem_data,
-    input wire[1:0] dataf_mem_memcnf,
+    //input wire[1:0] dataf_mem_memcnf,
 
     output wire id_stall
 );
@@ -50,11 +51,11 @@ module id(
             wd_o = 0;
             wreg_o = 0;
             imm = 0;
-            opr3_o = 0;
             reg1_read_o = 0;
             reg2_read_o = 0;
             reg1_addr_o = 0;
             reg2_addr_o = 0;
+            inst_o = 0;
         
         end else begin
             alusel_o[2:0] = inst_i[14:12];
@@ -65,6 +66,7 @@ module id(
             reg2_read_o = 0;
             reg1_addr_o = inst_i[19:15];
             reg2_addr_o = inst_i[24:20];
+            inst_o = inst_i;
 
             case (op)
             `EXE_ORI: begin
@@ -140,6 +142,7 @@ module id(
     end
 
     // For correctness: an instruction must not get the data it calculates by data-forwarding.
+    // For correctness: if something after ID stalls, ID may not get the true value from data-fowarding, so IF_ID should also stall.
     always @ (*) begin
         flag1 = `False;
         if (rst == `RstEnable) begin
@@ -148,13 +151,13 @@ module id(
             opr1_o = 0;
         end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
-            flag1 = `True; // BUG HERE: Stalling here is useless!! The instruction always goes out!!
+            flag1 = `True;
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_ex_wd) 
         && (dataf_ex_we == `WriteEnable)) begin
             opr1_o = dataf_ex_data;
-        end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
+        /*end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
         && dataf_mem_we && dataf_mem_memcnf) begin
-            flag1 = `True; // BUG HERE: mem already gets the true value!! Needn't stall here!!
+            flag1 = `True; // BUG HERE: mem already gets the true value!! Needn't stall here!!*/
         end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_mem_wd) 
         && (dataf_mem_we == `WriteEnable)) begin
             opr1_o = dataf_mem_data;
@@ -177,10 +180,10 @@ module id(
         end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_ex_wd) 
         && (dataf_ex_we == `WriteEnable)) begin
             opr2_o = dataf_ex_data;
-        end else if (reg2_read_o && reg2_addr_o == dataf_mem_wd 
+        /*end else if (reg2_read_o && reg2_addr_o == dataf_mem_wd 
         && dataf_mem_we && dataf_mem_memcnf) begin
-            flag2 = `True;
-        end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_mem_wd) 
+            flag2 = `True;*/
+        end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_mem_wd)
         && (dataf_mem_we == `WriteEnable)) begin
             opr2_o = dataf_mem_data;
         end else if (reg2_read_o == 1'b1) begin
