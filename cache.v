@@ -5,12 +5,13 @@ module inst_cache(
     input reg[`InstAddrBus] inst_addr,
     output reg[`InstBus] inst,
     output reg[`InstAddrBus] inst_addr_o,
+    output reg inst_available_out,
     output reg addr_needed,
 
     //Interaction with mem-control
     input wire inst_available,
     input wire[`InstBus] inst_from_mem,
-    output reg inst_needed,
+    output reg port_calling,
     output reg[`InstAddrBus] addr_to_mem,
     output reg[`InstAddrBus] 
 );
@@ -26,11 +27,14 @@ module inst_cache(
             addr_to_mem = 0;
         end else if (inst_addr[:2] == cache[inst_addr[:]]) begin // hit
             inst = cache[inst_addr[:]];
+            inst_available_out = 1;
             inst_addr_o = inst_addr;
+            port_calling = `False;
             inst_needed = 0;
             addr_needed = 1;
         end else if (inst_available) begin // miss
             inst = inst_from_mem;
+            inst_available_out = 1;
             inst_addr_o = inst_addr;
             inst_needed = 0;
             addr_needed = 1;

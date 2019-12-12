@@ -192,6 +192,8 @@ id id0(
     //data-fowarding
     .dataf_ex_we(ex_wreg_o), .dataf_ex_wd(ex_wd_o),
     .dataf_ex_data(ex_wdata_o), .dataf_ex_memcnf(ex_memcnf_o),
+    .dataf_exmem_we(mem_wreg_i), .dataf_exmem_wd(mem_wd_i),
+    .dataf_exmem_memcnf(mem_memcnf_i),
     .dataf_mem_we(mem_wreg_o), .dataf_mem_wd(mem_wd_o), 
     .dataf_mem_data(mem_wdata_o), //.dataf_mem_memcnf(mem_memcnf_o),
 

@@ -34,6 +34,7 @@ module regfile (
     always @ (posedge clk) begin
         if (rst == `RstDisable) begin
             if ((we == `WriteEnable) && (waddr != 0))  begin
+                //$display("write %h %h", waddr, wdata);
                 regs[waddr] <= wdata;
             end
         end

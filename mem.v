@@ -26,7 +26,6 @@ module mem(
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
-    //output reg[1:0] memcnf_o,
     output reg[`InstBus] inst_o,
 
     output reg mem_stall
@@ -43,21 +42,17 @@ module mem(
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
-            //memcnf_o = 0;
             inst_o = 0;
         end else if (mem_working) begin // For correctness, maybe NOP should be given out.
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
-            //memcnf_o = 0;
-            inst_o = inst_i;
         end else if (mem_available) begin
             // Note here: Please make sure the items below will not be refreshed by almost_available signal.
             // Warning: Please make sure the following things will work properly even if blocked.
             wd_o = wd_mem;
             wreg_o = wreg_mem;
             wdata_o = data_mem;
-            //memcnf_o = cnf_mem;
             if (wr_mem == 0) begin
                 wdata_o = data_in;
             end
@@ -67,7 +62,7 @@ module mem(
                     wdata_o = {{24{wdata_o[7]}}, wdata_o[7:0]};
                 end
                 2'b10: begin
-                    wdata_o = {{12{wdata_o[11]}}, wdata_o[11:0]};
+                    wdata_o = {{12{wdata_o[15]}}, wdata_o[15:0]};
                 end
                 default: begin
                 end
@@ -78,7 +73,7 @@ module mem(
                     wdata_o = {{24{1'b0}}, wdata_o[7:0]};
                 end
                 2'b10: begin
-                    wdata_o = {{12{1'b0}}, wdata_o[11:0]};
+                    wdata_o = {{12{1'b0}}, wdata_o[15:0]};
                 end
                 default: begin
                 end
@@ -88,8 +83,10 @@ module mem(
             wd_o = wd_i;
             wreg_o = wreg_i;
             wdata_o = wdata_i;
-            //memcnf_o = 0;
         end else if (!mem_working && memcnf_i) begin
+            wd_o = 0;
+            wreg_o = 0;
+            wdata_o = 0;
         end
 
         // Interaction with mem-control.

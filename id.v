@@ -23,13 +23,16 @@ module id(
     output reg[`InstAddrBus] opr4_o,
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存器
-    output reg[`InstBus] inst_o, // for debug use
+    output reg[`InstBus] inst_o, // For debug use.
 
     // For data-fowarding.
     input wire dataf_ex_we, //If there isn't any error here, I'm 50% confident that data-fowarding will work properly.
     input wire[`RegAddrBus] dataf_ex_wd,
     input wire[`RegBus] dataf_ex_data,
     input wire[1:0] dataf_ex_memcnf,
+    input wire dataf_exmem_we,
+    input wire[`RegAddrBus] dataf_exmem_wd,
+    input wire[1:0] dataf_exmem_memcnf,
     input wire dataf_mem_we,
     input wire[`RegAddrBus] dataf_mem_wd,
     input wire[`RegBus] dataf_mem_data,
@@ -81,6 +84,7 @@ module id(
                 wreg_o = `WriteEnable;
                 reg1_read_o = 1'b1;
                 reg2_read_o = 1'b1;
+                imm = {{20{inst_i[31]}}, inst_i[31:20]};
             end
             `EXE_LUI: begin
                 alusel_o = `SEL_LUI;
@@ -135,6 +139,7 @@ module id(
                 imm = {{20{inst_i[31]}} ,inst_i[31:25], inst_i[11:7]};
             end
             default: begin
+                //if (inst_i) $display("BOOMSHAKALAKA!");
                 alusel_o = 0;
             end
             endcase
@@ -155,16 +160,22 @@ module id(
         end else if (reg1_read_o == 1'b1 && reg1_addr_o == dataf_ex_wd 
         && dataf_ex_we == `WriteEnable) begin
             opr1_o = dataf_ex_data;
-        /*end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
-        && dataf_mem_we && dataf_mem_memcnf) begin
-            flag1 = `True; // BUG HERE: mem already gets the true value!! Needn't stall here!!*/
-        end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_mem_wd) 
-        && (dataf_mem_we == `WriteEnable)) begin
+            //$display("Caught ex.");
+        end else if (reg1_read_o == 1'b1 && reg1_addr_o == dataf_mem_wd
+        && dataf_mem_we == `WriteEnable) begin
             opr1_o = dataf_mem_data;
+            //$display("Caught mem.");
+        end else if (reg1_read_o && dataf_exmem_we && 
+        reg1_addr_o == dataf_exmem_wd && dataf_exmem_memcnf) begin
+            flag1 = `True; // It is awkward, but I think it has to be like that.
         end else if (reg1_read_o == 1'b1) begin
             opr1_o = reg1_data_i;
         end else if (reg1_read_o == 1'b0) begin
             opr1_o = imm;
+        end
+
+        if (reg1_read_o && dataf_exmem_we && reg1_addr_o == dataf_exmem_we && !dataf_exmem_memcnf) begin
+            $display("Something goes wrong, check ID.");
         end
     end
 
@@ -172,7 +183,7 @@ module id(
         flag2 = `False;
         if (rst == `RstEnable) begin
             opr2_o = 0;
-        end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == 0)) begin
+        end else if (reg2_read_o == 1'b1 && reg2_addr_o == 0) begin
             opr2_o = 0;
         end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
@@ -180,16 +191,22 @@ module id(
         end else if (reg2_read_o == 1'b1 && reg2_addr_o == dataf_ex_wd 
         && dataf_ex_we == `WriteEnable) begin
             opr2_o = dataf_ex_data;
-        /*end else if (reg2_read_o && reg2_addr_o == dataf_mem_wd 
-        && dataf_mem_we && dataf_mem_memcnf) begin
-            flag2 = `True;*/
-        end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_mem_wd)
-        && (dataf_mem_we == `WriteEnable)) begin
+            //$display("Caught ex.");
+        end else if (reg2_read_o == 1'b1 && reg2_addr_o == dataf_mem_wd
+        && dataf_mem_we == `WriteEnable) begin
             opr2_o = dataf_mem_data;
+            //$display("Caught mem.");
+        end else if (reg2_read_o && dataf_exmem_we && 
+        reg2_addr_o == dataf_exmem_wd && dataf_exmem_memcnf) begin
+            flag2 = `True;
         end else if (reg2_read_o == 1'b1) begin
             opr2_o = reg2_data_i;
         end else if (reg2_read_o == 1'b0) begin
             opr2_o = imm;
+        end
+
+        if (reg2_read_o && dataf_exmem_we && reg2_addr_o == dataf_exmem_we && !dataf_exmem_memcnf) begin
+            $display("Something goes wrong, check ID.");
         end
     end
 

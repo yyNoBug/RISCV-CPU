@@ -58,7 +58,8 @@ module ex(
                 logicout = opr1_i ^ opr2_i;
             end
             `SEL_ADD: begin
-                logicout = opr1_i + opr2_i;
+                if (opr3_i[10] == 0) logicout = opr1_i + opr2_i;
+                else logicout = opr1_i - opr2_i;
             end
             `SEL_SLT: begin
                 if ($signed(opr1_i) < $signed(opr2_i)) 
@@ -70,13 +71,13 @@ module ex(
                 else logicout = 0;
             end
             `SEL_SLL: begin
-                logicout = opr1_i << opr2_i[4:0]; //may be wrong here
+                logicout = opr1_i << opr2_i[4:0];
             end
             `SEL_SRL: begin
                 if (opr2_i[10] == 1'b0)
-                    logicout = opr1_i >>> opr2_i[4:0]; //may be wrong here
+                    logicout = opr1_i >> opr2_i[4:0];
                 else
-                    logicout = $signed(opr1_i) >> opr2_i[4:0]; //may be wrong here
+                    logicout = $signed(opr1_i) >>> opr2_i[4:0];
             end
             `SEL_LUI: begin
                 logicout = opr1_i;
@@ -91,7 +92,7 @@ module ex(
             end
             `SEL_JALR: begin
                 logicout = opr4_i + 4;
-                npc = (opr1_i + opr2_i) & (-2); //not sure
+                npc = (opr1_i + opr2_i) & (-2);
                 branch_interception = `True;
             end
             `SEL_BEQ: begin
@@ -136,31 +137,31 @@ module ex(
                     branch_interception = `True;
                 end
             end
-            `SEL_LB: begin // A problem to be solved: data-fowarding.
+            `SEL_LB: begin
                 memaddr_o = opr1_i + opr2_i;
                 memwr_o = 0;
                 memcnf_o = 2'b01;
                 memsigned_o = 1;
             end
-            `SEL_LH: begin // A problem to be solved: data-fowarding.
+            `SEL_LH: begin
                 memaddr_o = opr1_i + opr2_i;
                 memwr_o = 0;
                 memcnf_o = 2'b10;
                 memsigned_o = 1;
             end
-            `SEL_LW: begin // A problem to be solved: data-fowarding.
+            `SEL_LW: begin
                 memaddr_o = opr1_i + opr2_i;
                 memwr_o = 0;
                 memcnf_o = 2'b11;
                 memsigned_o = 1;
             end
-            `SEL_LBU: begin // A problem to be solved: data-fowarding.
+            `SEL_LBU: begin
                 memaddr_o = opr1_i + opr2_i;
                 memwr_o = 0;
                 memcnf_o = 2'b01;
                 memsigned_o = 0;
             end
-            `SEL_LHU: begin // A problem to be solved: data-fowarding.
+            `SEL_LHU: begin
                 memaddr_o = opr1_i + opr2_i;
                 memwr_o = 0;
                 memcnf_o = 2'b10;

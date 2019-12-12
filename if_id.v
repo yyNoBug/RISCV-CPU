@@ -16,7 +16,7 @@ module if_id(
             id_pc <= `ZeroWord;
             id_inst <= `ZeroWord;
         end else if (!ifid_stall) begin
-            if (if_inst != 0) $display("%h %h", if_pc, if_inst);
+            //if (if_inst != 0) $display("%h %h", if_pc, if_inst);
             id_pc <= if_pc;
             id_inst <= if_inst;
         end else begin
