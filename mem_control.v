@@ -88,7 +88,7 @@ module mem_control(
                     end
                 end
             end else if (cnt == 3'b001) begin
-                addr_ram = addr + 1;
+                addr_ram <= addr + 1;
                 dout_ram <= data[15:8];
                 if (wr == 1 && cnf == 2'b10) begin
                     data_available <= `True;
@@ -101,7 +101,7 @@ module mem_control(
             end else if (cnt == 3'b010) begin
                 inst[7:0] <= din_ram;
                 dout_ram <= data[23:16];
-                addr_ram = addr + 2;
+                addr_ram <= addr + 2;
                 cnt <= cnt + 1;
                 if (wr == 0 && cnf == 2'b01) begin
                     data_available <= `True;

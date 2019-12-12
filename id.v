@@ -152,8 +152,8 @@ module id(
         end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
             flag1 = `True;
-        end else if ((reg1_read_o == 1'b1) && (reg1_addr_o == dataf_ex_wd) 
-        && (dataf_ex_we == `WriteEnable)) begin
+        end else if (reg1_read_o == 1'b1 && reg1_addr_o == dataf_ex_wd 
+        && dataf_ex_we == `WriteEnable) begin
             opr1_o = dataf_ex_data;
         /*end else if (reg1_read_o && reg1_addr_o == dataf_mem_wd 
         && dataf_mem_we && dataf_mem_memcnf) begin
@@ -177,8 +177,8 @@ module id(
         end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
             flag2 = `True;
-        end else if ((reg2_read_o == 1'b1) && (reg2_addr_o == dataf_ex_wd) 
-        && (dataf_ex_we == `WriteEnable)) begin
+        end else if (reg2_read_o == 1'b1 && reg2_addr_o == dataf_ex_wd 
+        && dataf_ex_we == `WriteEnable) begin
             opr2_o = dataf_ex_data;
         /*end else if (reg2_read_o && reg2_addr_o == dataf_mem_wd 
         && dataf_mem_we && dataf_mem_memcnf) begin
