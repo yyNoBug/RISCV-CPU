@@ -62,7 +62,7 @@ module mem(
                     wdata_o = {{24{wdata_o[7]}}, wdata_o[7:0]};
                 end
                 2'b10: begin
-                    wdata_o = {{12{wdata_o[15]}}, wdata_o[15:0]};
+                    wdata_o = {{16{wdata_o[15]}}, wdata_o[15:0]};
                 end
                 default: begin
                 end
@@ -73,7 +73,7 @@ module mem(
                     wdata_o = {{24{1'b0}}, wdata_o[7:0]};
                 end
                 2'b10: begin
-                    wdata_o = {{12{1'b0}}, wdata_o[15:0]};
+                    wdata_o = {{16{1'b0}}, wdata_o[15:0]};
                 end
                 default: begin
                 end
