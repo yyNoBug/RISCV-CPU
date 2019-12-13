@@ -36,7 +36,7 @@ module iF(
         end else if (inst_available == `True) begin
             inst_out = inst_in;
             //if (inst_out == 32'h00e78023) $display("What a coincidence!");
-            if (ifid_stall) $display("IF inst_out MISSING!");
+            //if (ifid_stall) $display("IF inst_out MISSING!");
         end else begin
             inst_out = 32'h0; // BUG here: some instructions may miss.
         end

@@ -77,5 +77,5 @@
 `define NOPRegAddr          5'b00000
 
 `define ImmBus              31:0
-`define CacheBus            39:0 //随便定的
+`define CacheBus            56:0 //随便定的
 `define CacheNum            128

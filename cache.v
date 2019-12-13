@@ -22,7 +22,7 @@ module inst_cache(
         if (rst) begin
             inst_o = 0;
         end else begin
-            inst_o = cache[inst_addr[:]]];
+            inst_o = cache[addr_i[6:0]][31:0];
         end
     end
 
@@ -30,13 +30,15 @@ module inst_cache(
         if (rst) begin
             inst_needed = 0;
             inst_available_o = 0;
-        end else if (inst_addr[:] == cache[addr_i[:]]) begin // hit
+            addr_i[56] = 1;
+        end else if (addr_i[31:7] == cache[addr_i[6:0]][56:32]) begin // hit
             inst_needed = 0;
             inst_available_o = 1;
         end else if (inst_available_i) begin // miss
             inst_needed = 0;
-            inst_available_o = 1; //not necessarily needed
-            cache[addr_i[:]] = inst_i; // For correctness, addr_i must remain unchanged.
+            inst_available_o = 1; // Not necessarily needed, since it will hit after rewriting cache!
+            cache[addr_i[6:0]][31:0] = inst_i; // For correctness, addr_i must remain unchanged.
+            cache[addr_i[6:0]][56:32] = addr_i[31:7];
         end else if (!inst_available_i) begin
             inst_needed = 1;
             inst_available_o = 0;

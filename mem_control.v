@@ -140,6 +140,8 @@ module mem_control(
                     inst_addr_o <= addr;
                     inst_available <= 1;
                     busy_inst <= `False;
+                    almost_available <= 0;
+                    cnt <= 3'b110;
                 end else if (busy_data) begin
                     data_available <= 1;
                     busy_data <= `False;
@@ -148,6 +150,7 @@ module mem_control(
                 end
             end else if (cnt == 3'b110) begin
                 almost_available <= 1;
+                inst_available <= 0;
                 cnt <= 0;
             end
 

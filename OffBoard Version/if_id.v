@@ -19,7 +19,9 @@ module if_id(
             //if (if_inst != 0) $display("%h %h", if_pc, if_inst);
             id_pc <= if_pc;
             id_inst <= if_inst;
-        end else begin
+        end else if (ifid_stall) begin
+            if (if_inst != 0) $display("Inst Missing in IFID!.");
+        end
         end
     end
     
