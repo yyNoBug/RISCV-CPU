@@ -14,7 +14,8 @@ module mem_control(
     output reg almost_available,
     output reg[`InstBus] inst,
 
-    // interaction with if
+    // interaction with i_cache
+    input wire inst_needed,
     input wire[`InstAddrBus] inst_addr_i,
     input wire ifid_stall,
     output reg inst_available,
@@ -63,6 +64,8 @@ module mem_control(
                 cnf <= data_cnf_i;
                 if (data_cnf_i == 2'b00) begin
                     if (ifid_stall) begin // The awkward thing is for the stalling problem of pc_reg.
+                        almost_available <= 1;
+                    end else if (!inst_needed) begin
                         almost_available <= 1;
                     end else begin
                         addr <= inst_addr_i;

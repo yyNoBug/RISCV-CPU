@@ -22,7 +22,6 @@ module if_id(
         end else if (ifid_stall) begin
             if (if_inst != 0) $display("Inst Missing in IFID!.");
         end
-        end
     end
     
 endmodule

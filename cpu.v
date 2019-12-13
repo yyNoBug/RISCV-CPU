@@ -34,6 +34,11 @@ wire[`InstAddrBus] if_pc_i;
 wire[`InstAddrBus] if_pc_o;
 wire[`InstAddrBus] if_inst_o;
 
+//IF -> i_cache
+wire inst_available_c;
+wire[`InstBus] inst_c;
+wire[`InstAddrBus] pc_c;
+
 //IF/ID -> ID
 wire[`InstAddrBus] pc;
 wire[`InstAddrBus] id_pc_i;
@@ -123,6 +128,7 @@ wire[`InstAddrBus] npc;
 wire mc_almost_available_o;
 wire[`InstBus] mc_inst_o;
 
+wire mc_inst_needed_i;
 wire[`InstAddrBus] mc_inst_addr_i;
 wire[`InstAddrBus] mc_inst_addr_o;
 wire mc_inst_available_o;
@@ -142,13 +148,24 @@ pc_reg pc_reg0(
 );
 
 iF if0(
-    .rst(rst_in), .branch_interception(br),
+    .rst(rst_in),// .branch_interception(br),
     .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
-    .addr_needed(mc_almost_available_o), .memcnf(mem_memcnf_i),
-    .inst_available(mc_inst_available_o), .inst_in(mc_inst_o),
-    .pc_back(mc_inst_addr_o), .pc_mem(mc_inst_addr_i), .if_stall(if_stall),
+    .inst_available(inst_available_c), .inst_c(inst_c),
+    .pc_c(pc_c),
+    .if_stall(if_stall)
+);
+
+inst_cache icache(
+    .rst(rst_in),
+    .addr_i(pc_c), .inst_o(inst_c), .inst_available_o(inst_available_c),
     
-    .ifid_stall(ifid_stall)
+    .addr_needed(mc_almost_available_o),
+    .inst_available_i(mc_inst_available_o),
+    .inst_i(mc_inst_o),
+    .inst_needed(mc_inst_needed_i),
+    .addr_o(mc_inst_addr_i),
+
+    .branch_interception(br), .memcnf(mem_memcnf_i)
 );
 
 mem_control mem_control0(
@@ -156,6 +173,7 @@ mem_control mem_control0(
     .dout_ram(mem_dout), .din_ram(mem_din),
     .addr_ram(mem_a), .wr_ram(mem_wr),
     
+    .inst_needed(mc_inst_needed_i),
     .inst_addr_i(mc_inst_addr_i), .inst_addr_o(mc_inst_addr_o),
     .ifid_stall(ifid_stall),
     .almost_available(mc_almost_available_o),

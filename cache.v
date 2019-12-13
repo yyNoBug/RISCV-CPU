@@ -1,8 +1,10 @@
 `include "defines.v"
 
 module inst_cache(
+    input wire rst,
+    
     //Interaction with IF
-    input reg[`InstAddrBus] addr_i,
+    input wire[`InstAddrBus] addr_i,
     output reg[`InstBus] inst_o,
     output reg inst_available_o,
 
@@ -11,12 +13,15 @@ module inst_cache(
     input wire inst_available_i,
     input wire[`InstBus] inst_i,
     output reg inst_needed,
-    output wire[`InstAddrBus] addr_o
+    output wire[`InstAddrBus] addr_o,
+
+    input wire branch_interception,
+    input wire[1:0] memcnf
 );
 
     assign addr_o = addr_i;
 
-    reg[`CacheBus] cache[0 : `CacheSize - 1];
+    reg[`CacheBus] cache[0 : `CacheNum - 1];
     
     always @ (*) begin
         if (rst) begin
@@ -30,7 +35,9 @@ module inst_cache(
         if (rst) begin
             inst_needed = 0;
             inst_available_o = 0;
-            addr_i[56] = 1;
+            for (integer i  = 0; i < 128; i = i + 1) begin
+                cache[i][56] = 1;
+            end
         end else if (addr_i[31:7] == cache[addr_i[6:0]][56:32]) begin // hit
             inst_needed = 0;
             inst_available_o = 1;
