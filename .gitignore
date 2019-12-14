@@ -9,5 +9,4 @@ uart_baud_clk.v
 uart_rx.v
 uart_tx.v
 uart.v
-*.md
 A Correct Version/*
