@@ -41,12 +41,12 @@ module inst_cache(
         end else if (addr_i[31:7] == cache[addr_i[6:0]][56:32]) begin // hit
             inst_needed = 0;
             inst_available_o = 1;
-        end else if (inst_available_i) begin // miss
-            inst_needed = 0;
-            inst_available_o = 1; // Not necessarily needed, since it will hit after rewriting cache!
+        end else if (inst_available_i) begin // miss but found
+            inst_needed = 0; // Not necessarily needed, since it will hit after rewriting cache.
+            inst_available_o = 1; // Not necessarily needed, since it will hit after rewriting cache.
             cache[addr_i[6:0]][31:0] = inst_i; // For correctness, addr_i must remain unchanged.
             cache[addr_i[6:0]][56:32] = addr_i[31:7];
-        end else if (!inst_available_i) begin
+        end else if (!inst_available_i) begin // miss and not found
             inst_needed = 1;
             inst_available_o = 0;
         end

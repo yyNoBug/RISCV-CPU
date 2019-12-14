@@ -112,6 +112,15 @@ module mem(
             signed_mem = memsigned_i;
         end else if (memcnf_i) begin
             mem_stall = 1;
+        end else if (mem_available && !memcnf_i) begin
+            mem_stall = 1;
+            addr_mem = 0;
+            wr_mem = 0;
+            data_mem = 0;
+            cnf_mem = 0;
+            wd_mem = 0;
+            wreg_mem = 0;
+            signed_mem = 0;
         end else begin
             mem_stall = 0;
             addr_mem = 0;

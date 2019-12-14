@@ -88,7 +88,6 @@ wire[`InstBus] mem_inst_i;
 wire mem_wreg_o;
 wire[`RegAddrBus] mem_wd_o;
 wire[`RegBus] mem_wdata_o;
-//wire[1:0] mem_memcnf_o;
 wire[`InstBus] mem_inst_o;
 
 //MEM/WB -> WB
@@ -130,7 +129,6 @@ wire[`InstBus] mc_inst_o;
 
 wire mc_inst_needed_i;
 wire[`InstAddrBus] mc_inst_addr_i;
-wire[`InstAddrBus] mc_inst_addr_o;
 wire mc_inst_available_o;
 
 wire mc_datawr_i;
@@ -148,7 +146,7 @@ pc_reg pc_reg0(
 );
 
 iF if0(
-    .rst(rst_in),// .branch_interception(br),
+    .rst(rst_in),
     .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
     .inst_available(inst_available_c), .inst_c(inst_c),
     .pc_c(pc_c),
@@ -174,7 +172,7 @@ mem_control mem_control0(
     .addr_ram(mem_a), .wr_ram(mem_wr),
     
     .inst_needed(mc_inst_needed_i),
-    .inst_addr_i(mc_inst_addr_i), .inst_addr_o(mc_inst_addr_o),
+    .inst_addr_i(mc_inst_addr_i),
     .ifid_stall(ifid_stall),
     .almost_available(mc_almost_available_o),
     .inst_available(mc_inst_available_o), .inst(mc_inst_o),
@@ -215,7 +213,7 @@ id id0(
     .dataf_exmem_we(mem_wreg_i), .dataf_exmem_wd(mem_wd_i),
     .dataf_exmem_memcnf(mem_memcnf_i),
     .dataf_mem_we(mem_wreg_o), .dataf_mem_wd(mem_wd_o), 
-    .dataf_mem_data(mem_wdata_o), //.dataf_mem_memcnf(mem_memcnf_o),
+    .dataf_mem_data(mem_wdata_o),
 
     .id_stall(id_stall)
 );

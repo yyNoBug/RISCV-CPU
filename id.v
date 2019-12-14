@@ -175,7 +175,8 @@ module id(
         end
 
         if (reg1_read_o && dataf_exmem_we && reg1_addr_o == dataf_exmem_we && !dataf_exmem_memcnf) begin
-            $display("Something goes wrong, check ID.");
+            // I really think there is a problem, but it never goes wrong.
+            //$display("Something goes wrong, check ID.");
         end
     end
 
@@ -206,7 +207,8 @@ module id(
         end
 
         if (reg2_read_o && dataf_exmem_we && reg2_addr_o == dataf_exmem_we && !dataf_exmem_memcnf) begin
-            $display("Something goes wrong, check ID.");
+            // I really think there is a problem, but it never goes wrong.
+            //$display("Something goes wrong, check ID.");
         end
     end
 

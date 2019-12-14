@@ -19,7 +19,7 @@ module mem_control(
     input wire[`InstAddrBus] inst_addr_i,
     input wire ifid_stall,
     output reg inst_available,
-    output reg[`InstAddrBus] inst_addr_o,
+    //output reg[`InstAddrBus] inst_addr_o,
 
     // interaction with mem
     input wire datawr_i,
@@ -38,6 +38,14 @@ module mem_control(
     reg[1:0] cnf;
     reg wr;
 
+    /*
+    always @ (posedge clk) begin
+        if (wr_ram) begin
+            $display("mem_write %h $h", addr, data);
+        end
+    end
+    */
+
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
             cnt <= 3'b110;
@@ -50,10 +58,10 @@ module mem_control(
             dout_ram <= 0;
             wr_ram <= 0;
             inst <= 0;
-            inst_addr_o <= 0;
+            //inst_addr_o <= 0;
             
         end else begin
-            if (branch_interception && busy_inst) begin
+            if (branch_interception && busy_inst) begin // here IF has a higher priority than mem, causing bug.
                 busy_inst <= 0;
                 almost_available <= 1;
                 cnt <= 0;
@@ -63,9 +71,10 @@ module mem_control(
                 data_available <= `False;
                 cnf <= data_cnf_i;
                 if (data_cnf_i == 2'b00) begin
-                    if (ifid_stall) begin // The awkward thing is for the stalling problem of pc_reg.
+                    /*if (ifid_stall) begin // The awkward thing is for the stalling problem of pc_reg.
                         almost_available <= 1;
-                    end else if (!inst_needed) begin
+                    end else */
+                    if (!inst_needed || branch_interception) begin
                         almost_available <= 1;
                     end else begin
                         addr <= inst_addr_i;
@@ -140,7 +149,7 @@ module mem_control(
                 cnt <= 0;
                 almost_available <= 1;
                 if (busy_inst) begin
-                    inst_addr_o <= addr;
+                    //inst_addr_o <= addr;
                     inst_available <= 1;
                     busy_inst <= `False;
                     almost_available <= 0;

@@ -29,7 +29,7 @@ module if_id(
                 id_pc <= if_pc;
                 id_inst <= if_inst;
             end
-            if (id_inst != 0) $display("%h %h", id_pc, id_inst);
+            //if (id_inst != 0) $display("%h %h", id_pc, id_inst);
         end else if (ifid_stall) begin
             if (if_inst != 0) begin 
                 //$display("Inst Missing in IFID!."); // I want to delete it.

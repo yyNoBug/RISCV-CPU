@@ -35,7 +35,17 @@ module id_ex(
             ex_opr4 <= 0;
             ex_wd <= 0;
             ex_wreg <= 0;
-            ex_inst <= 0; 
+            ex_inst <= 0;
+        end else if(idex_stall) begin 
+        end else if(id_stall) begin // may have logic problem about ID_stall here.
+            ex_alusel <= 0;
+            ex_opr1 <= 0;
+            ex_opr2 <= 0;
+            ex_opr3 <= 0;
+            ex_opr4 <= 0;
+            ex_wd <= 0;
+            ex_wreg <= 0;
+            ex_inst <= 0;
         end else if (!idex_stall) begin
             ex_alusel <= id_alusel;
             ex_opr1 <= id_opr1;
@@ -45,15 +55,6 @@ module id_ex(
             ex_wd <= id_wd;
             ex_wreg <= id_wreg;
             ex_inst <= id_inst;
-        end else if(id_stall) begin
-            ex_alusel <= 0;
-            ex_opr1 <= 0;
-            ex_opr2 <= 0;
-            ex_opr3 <= 0;
-            ex_opr4 <= 0;
-            ex_wd <= 0;
-            ex_wreg <= 0;
-            ex_inst <= 0;
         end else begin
         end
     end
