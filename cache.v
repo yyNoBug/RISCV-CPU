@@ -31,11 +31,13 @@ module inst_cache(
         end
     end
 
+    reg [10:0] i;
+
     always @ (*) begin
         if (rst) begin
             inst_needed = 0;
             inst_available_o = 0;
-            for (integer i  = 0; i < 128; i = i + 1) begin
+            for (i = 0; i < 128; i = i + 1) begin
                 cache[i][56] = 1;
             end
         end else if (addr_i[31:7] == cache[addr_i[6:0]][56:32]) begin // hit
