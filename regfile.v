@@ -66,7 +66,7 @@ module regfile (
         end else if (re2 == `ReadEnable) begin
             rdata2 <= regs[raddr2];
         end else begin 
-            rdata2 = 0;
+            rdata2 <= 0;
         end
     end
 

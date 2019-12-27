@@ -27,7 +27,7 @@ module id_ex(
 );
 
     always @ (posedge clk) begin
-        if (rst || branch_interception) begin
+        if (rst) begin
             ex_alusel <= 0;
             ex_opr1 <= 0;
             ex_opr2 <= 0;
@@ -36,8 +36,17 @@ module id_ex(
             ex_wd <= 0;
             ex_wreg <= 0;
             ex_inst <= 0;
-        end else if(idex_stall) begin 
-        end else if(id_stall) begin // may have logic problem about ID_stall here.
+        end else if (idex_stall) begin
+        end else if (branch_interception) begin
+            ex_alusel <= 0;
+            ex_opr1 <= 0;
+            ex_opr2 <= 0;
+            ex_opr3 <= 0;
+            ex_opr4 <= 0;
+            ex_wd <= 0;
+            ex_wreg <= 0;
+            ex_inst <= 0;
+        end else if (id_stall) begin // may have logic problem about ID_stall here.
             ex_alusel <= 0;
             ex_opr1 <= 0;
             ex_opr2 <= 0;
