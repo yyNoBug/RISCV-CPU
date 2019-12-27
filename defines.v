@@ -77,5 +77,11 @@
 `define NOPRegAddr          5'b00000
 
 `define ImmBus              31:0
-`define CacheBus            56:0 //随便定的
-`define CacheNum            128
+
+`define CacheLine           128
+`define CacheBus            54:0 //56:32存Tag 31:0存指令, 54 = 32+32-log(128)-1-2
+`define CacheTagBus         54:32
+`define CacheInstBus        31:0
+`define AddrTagBus          31:9
+`define AddrIndexBus        8:2
+`define IndexBus            6:0

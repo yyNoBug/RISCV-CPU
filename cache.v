@@ -19,15 +19,18 @@ module inst_cache(
     input wire[1:0] memcnf
 );
 
-    assign addr_o = addr_i;
+    wire[`IndexBus] index;
 
-    reg[`CacheBus] cache[0 : `CacheNum - 1];
+    assign addr_o = addr_i;
+    assign index = addr_i[`AddrIndexBus];
+
+    reg[`CacheBus] cache[0 : `CacheLine - 1];
     
     always @ (*) begin
         if (rst) begin
             inst_o = 0;
         end else begin
-            inst_o = cache[addr_i[6:0]][31:0];
+            inst_o = cache[index][`CacheInstBus];
         end
     end
 
@@ -40,14 +43,14 @@ module inst_cache(
             for (i = 0; i < 128; i = i + 1) begin
                 cache[i][56] = 1;
             end
-        end else if (addr_i[31:7] == cache[addr_i[6:0]][56:32]) begin // hit
+        end else if (addr_i[`AddrTagBus] == cache[index][`CacheTagBus]) begin // hit
             inst_needed = 0;
             inst_available_o = 1;
         end else if (inst_available_i) begin // miss but found
             inst_needed = 0; // Not necessarily needed, since it will hit after rewriting cache.
             inst_available_o = 1; // Not necessarily needed, since it will hit after rewriting cache.
-            cache[addr_i[6:0]][31:0] = inst_i; // For correctness, addr_i must remain unchanged.
-            cache[addr_i[6:0]][56:32] = addr_i[31:7];
+            cache[index][`CacheInstBus] = inst_i;
+            cache[index][`CacheTagBus] = addr_i[`AddrTagBus];
         end else if (!inst_available_i) begin // miss and not found
             inst_needed = 1;
             inst_available_o = 0;
