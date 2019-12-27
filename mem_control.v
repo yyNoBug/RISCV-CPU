@@ -37,6 +37,8 @@ module mem_control(
     reg[1:0] cnf;
     reg wr;
 
+    reg[31:0] buffer;
+
     /*
     always @ (posedge clk) begin
         if (wr_ram) begin
@@ -64,6 +66,7 @@ module mem_control(
                 almost_available <= 1;
                 cnt <= 0;
             end else if (cnt == 3'b000) begin
+                buffer[15:8] <= din_ram;
                 almost_available <= `False;
                 inst_available <= `False;
                 data_available <= `False;
@@ -71,6 +74,14 @@ module mem_control(
                 if (data_cnf_i == 2'b00) begin
                     if (!inst_needed || branch_interception) begin
                         almost_available <= 1;
+                    end else if (addr_ram == inst_addr_i + 2) begin
+                        addr_ram <= addr + 7;
+                        addr <= inst_addr_i;
+                        wr <= 0;
+                        wr_ram <= 0;
+                        inst[15:0] <= buffer;
+                        busy_inst <= `True;
+                        cnt <= 3'b100;
                     end else begin
                         addr <= inst_addr_i;
                         addr_ram <= inst_addr_i;
@@ -139,8 +150,10 @@ module mem_control(
             end else if (cnt == 3'b100) begin
                 inst[23:16] <= din_ram;
                 cnt <= cnt + 1;
+                addr_ram <= addr + 4;
             end else if (cnt == 3'b101) begin
                 inst[31:24] <= din_ram;
+                addr_ram <= addr + 5;
                 if (busy_inst) begin
                     inst_available <= 1;
                     busy_inst <= `False;
@@ -155,38 +168,12 @@ module mem_control(
                     $display("BOOMSHAKALAKA!");
                 end
             end else if (cnt == 3'b110) begin
+                buffer[7:0] <= din_ram;
+                addr_ram <= addr + 6;
                 almost_available <= 1;
                 inst_available <= 0;
                 cnt <= 0;
             end
-
-            /*
-            if (cnt == 2'b00) begin
-                inst[7:0] <= din_ram;
-                addr_ram <= addr + 1;
-                available <= `True;
-                cnt <= 2'b01;
-            end else if (cnt == 2'b01) begin
-                inst[31:24] <= din_ram;
-                addr_ram = addr + 2;
-                available = `False;
-                cnt <= 2'b10;
-            end else if (cnt == 2'b10) begin
-                inst[23:16] <= din_ram;
-                addr_ram <= addr + 3;
-                almost_available <= `True;
-                cnt <= 2'b11;
-            end else if (cnt == 2'b11) begin
-                inst[15:8] <= din_ram;
-                inst_addr_o <= addr; // Give back to PC
-                almost_available <= `False;
-                
-                addr = inst_addr_i;
-                addr_ram = addr;
-                cnt = 2'b00;
-                wr_ram = `Read;
-            end
-            */
         end
     end
 
