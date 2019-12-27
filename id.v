@@ -61,6 +61,7 @@ module id(
             inst_o = 0;
         
         end else begin
+            alusel_o = 0;
             alusel_o[2:0] = inst_i[14:12];
             wd_o = inst_i[11:7];
             wreg_o = 0;
@@ -156,17 +157,17 @@ module id(
             opr1_o = 0;
         end else if (reg1_read_o && reg1_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
+            opr1_o = 0; // Correctness not tested.
             flag1 = `True;
         end else if (reg1_read_o == 1'b1 && reg1_addr_o == dataf_ex_wd 
         && dataf_ex_we == `WriteEnable) begin
             opr1_o = dataf_ex_data;
-            //$display("Caught ex.");
         end else if (reg1_read_o == 1'b1 && reg1_addr_o == dataf_mem_wd
         && dataf_mem_we == `WriteEnable) begin
             opr1_o = dataf_mem_data;
-            //$display("Caught mem.");
         end else if (reg1_read_o && dataf_exmem_we && 
         reg1_addr_o == dataf_exmem_wd && dataf_exmem_memcnf) begin
+            opr1_o = 0; // Correctness not tested.
             flag1 = `True; // It is awkward, but I think it has to be like that.
         end else if (reg1_read_o == 1'b1) begin
             opr1_o = reg1_data_i;
@@ -188,17 +189,17 @@ module id(
             opr2_o = 0;
         end else if (reg2_read_o && reg2_addr_o == dataf_ex_wd
         && dataf_ex_we && dataf_ex_memcnf) begin
+            opr2_o = 0; // Correctness not tested.
             flag2 = `True;
         end else if (reg2_read_o == 1'b1 && reg2_addr_o == dataf_ex_wd 
         && dataf_ex_we == `WriteEnable) begin
             opr2_o = dataf_ex_data;
-            //$display("Caught ex.");
         end else if (reg2_read_o == 1'b1 && reg2_addr_o == dataf_mem_wd
         && dataf_mem_we == `WriteEnable) begin
             opr2_o = dataf_mem_data;
-            //$display("Caught mem.");
         end else if (reg2_read_o && dataf_exmem_we && 
         reg2_addr_o == dataf_exmem_wd && dataf_exmem_memcnf) begin
+            opr2_o = 0; // Correctness not tested.
             flag2 = `True;
         end else if (reg2_read_o == 1'b1) begin
             opr2_o = reg2_data_i;

@@ -88,7 +88,6 @@ wire[`InstBus] mem_inst_i;
 wire mem_wreg_o;
 wire[`RegAddrBus] mem_wd_o;
 wire[`RegBus] mem_wdata_o;
-wire[`InstBus] mem_inst_o;
 
 //MEM/WB -> WB
 wire wb_wreg_i;
@@ -154,7 +153,7 @@ iF if0(
 );
 
 inst_cache icache(
-    .rst(rst_in),
+    .clk(clk_in), .rst(rst_in),
     .addr_i(pc_c), .inst_o(inst_c), .inst_available_o(inst_available_c),
     
     .addr_needed(mc_almost_available_o),
@@ -163,7 +162,7 @@ inst_cache icache(
     .inst_needed(mc_inst_needed_i),
     .addr_o(mc_inst_addr_i),
 
-    .branch_interception(br), .memcnf(mem_memcnf_i)
+    .branch_interception(br)
 );
 
 mem_control mem_control0(
@@ -295,7 +294,6 @@ mem mem0(
 
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
     .wdata_o(mem_wdata_o), //.memcnf_o(mem_memcnf_o),
-    .inst_o(mem_inst_o),
 
     .mem_stall(mem_stall)
 );
@@ -304,7 +302,6 @@ mem_wb mem_wb0(
     .clk(clk_in), .rst(rst_in),
     .mem_wd(mem_wd_o), .mem_wreg(mem_wreg_o),
     .mem_wdata(mem_wdata_o),
-    .mem_inst(mem_inst_o),
 
     .wb_wd(wb_wd_i), .wb_wreg(wb_wreg_i),
     .wb_wdata(wb_wdata_i)

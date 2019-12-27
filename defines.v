@@ -81,6 +81,7 @@
 `define CacheLine           128
 `define CacheBus            54:0 //56:32存Tag 31:0存指令, 54 = 32+32-log(128)-1-2
 `define CacheTagBus         54:32
+`define CacheTagFirstBit    54
 `define CacheInstBus        31:0
 `define AddrTagBus          31:9
 `define AddrIndexBus        8:2

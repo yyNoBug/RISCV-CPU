@@ -36,14 +36,19 @@ module ex(
     always @ (*) begin
         if (rst == `RstEnable) begin
             branch_interception = 0;
+            npc = 0;
             logicout = 0;
             memaddr_o = 0;
+            memwr_o = 0;
             memcnf_o = 0;
             memsigned_o = 0;
             inst_o = 0;
         end else begin
             branch_interception = 0;
+            npc = 0;
+            logicout = 0;
             memaddr_o = 0;
+            memwr_o = 0;
             memcnf_o = 0;
             memsigned_o = 0;
             inst_o = inst_i;

@@ -26,7 +26,6 @@ module mem(
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg[`RegBus] wdata_o,
-    output reg[`InstBus] inst_o,
 
     output reg mem_stall
 );
@@ -42,8 +41,7 @@ module mem(
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
-            inst_o = 0;
-        end else if (mem_working) begin // For correctness, maybe NOP should be given out.
+        end else if (mem_working) begin
             wd_o = 0;
             wreg_o = 0;
             wdata_o = 0;
