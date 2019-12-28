@@ -15,6 +15,9 @@ module cpu(
   	output wire [31:0]		    dbgreg_dout		// cpu register output (debugging demo)
 );
 
+
+wire rst;
+assign rst = rst_in | !rdy_in;
 // implementation goes here
 
 // Specifications:
@@ -136,16 +139,24 @@ wire[`MemDataBus] mc_data_i;
 wire[1:0] mc_data_cnf_i;
 wire mc_busy_data;
 wire mc_data_available_o;
+wire[`RegAddrBus] mc_wd_i;
+wire[`RegAddrBus] mc_wd_o;
+wire mc_wreg_i;
+wire mc_wreg_o;
+wire mc_signed_i;
+wire mc_signed_o;
+wire[1:0] mc_cnf_o;
+
 
 
 pc_reg pc_reg0(
-    .clk(clk_in), .rst(rst_in), 
+    .clk(clk_in), .rst(rst), 
     .branch_interception(br), .npc(npc),
     .if_stall(pcreg_stall), .if_pc_i(if_pc_i)
 );
 
 iF if0(
-    .rst(rst_in),
+    .rst(rst),
     .pc_in(if_pc_i), .pc_out(if_pc_o), .inst_out(if_inst_o),
     .inst_available(inst_available_c), .inst_c(inst_c),
     .pc_c(pc_c),
@@ -153,43 +164,47 @@ iF if0(
 );
 
 inst_cache icache(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst),
     .addr_i(pc_c), .inst_o(inst_c), .inst_available_o(inst_available_c),
     
-    .addr_needed(mc_almost_available_o),
+    //.addr_needed(mc_almost_available_o),
     .inst_available_i(mc_inst_available_o),
     .inst_i(mc_inst_o),
     .inst_needed(mc_inst_needed_i),
-    .addr_o(mc_inst_addr_i),
+    .addr_o(mc_inst_addr_i)
 
-    .branch_interception(br)
+    //.branch_interception(br)
 );
 
 mem_control mem_control0(
-    .clk(clk_in), .rst(rst_in), .branch_interception(br),
+    .clk(clk_in), .rst(rst), .branch_interception(br),
     .dout_ram(mem_dout), .din_ram(mem_din),
     .addr_ram(mem_a), .wr_ram(mem_wr),
     
     .inst_needed(mc_inst_needed_i),
     .inst_addr_i(mc_inst_addr_i),
-    .ifid_stall(ifid_stall),
+    //.ifid_stall(ifid_stall),
     .almost_available(mc_almost_available_o),
     .inst_available(mc_inst_available_o), .inst(mc_inst_o),
 
     .datawr_i(mc_datawr_i), .data_addr_i(mc_data_addr_i),
     .data_i(mc_data_i), .data_cnf_i(mc_data_cnf_i),
-    .busy_data(mc_busy_data), .data_available(mc_data_available_o)
+    .busy_data(mc_busy_data), .data_available(mc_data_available_o),
+    .wd_i(mc_wd_i), .wreg_i(mc_wreg_i), .signed_i(mc_signed_i),
+    .wd_o(mc_wd_o), .wreg_o(mc_wreg_o),
+    .signed_o(mc_signed_o), .cnf_o(mc_cnf_o)
+
 );
 
 if_id if_id0(
-    .clk(clk_in), .rst(rst_in), .branch_interception(br),
+    .clk(clk_in), .rst(rst), .branch_interception(br),
     .if_pc(if_pc_o),
     .if_inst(if_inst_o), .id_pc(id_pc_i),
     .id_inst(id_inst_i), .ifid_stall(ifid_stall)
 );
 
 id id0(
-    .rst(rst_in), .pc_i(id_pc_i), .branch_interception(br),
+    .rst(rst), .pc_i(id_pc_i), .branch_interception(br),
     .inst_i(id_inst_i),
     
     //from RegFile
@@ -218,7 +233,7 @@ id id0(
 );
 
 regfile regfile0(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst),
     .we(wb_wreg_i), .waddr(wb_wd_i), .wdata(wb_wdata_i),
     .re1(reg1_read), .re2(reg2_read), 
     .raddr1(reg1_addr), .raddr2(reg2_addr),
@@ -226,7 +241,7 @@ regfile regfile0(
 );
 
 id_ex id_ex0(
-    .clk(clk_in), .rst(rst_in), .branch_interception(br),
+    .clk(clk_in), .rst(rst), .branch_interception(br),
     .id_stall(id_stall), .id_alusel(id_alusel_o),
     .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), 
     .id_opr3(id_opr3_o), .id_opr4(id_opr4_o),
@@ -243,7 +258,7 @@ id_ex id_ex0(
 );
 
 ex ex0(
-    .rst(rst_in),
+    .rst(rst),
     .alusel_i(ex_alusel_i),
     .opr1_i(ex_opr1_i), .opr2_i(ex_opr2_i),
     .opr3_i(ex_opr3_i), .opr4_i(ex_opr4_i),
@@ -262,7 +277,7 @@ ex ex0(
 );
 
 ex_mem ex_mem0(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst),
     .ex_wd(ex_wd_o), .ex_wreg(ex_wreg_o),
     .ex_wdata(ex_wdata_o),
     .ex_memaddr(ex_memaddr_o), .ex_memwr(ex_memwr_o),
@@ -279,7 +294,7 @@ ex_mem ex_mem0(
 );
 
 mem mem0(
-    .rst(rst_in),
+    .rst(rst),
     .wd_i(mem_wd_i), .wreg_i(mem_wreg_i),
     .wdata_i(mem_wdata_i),
 
@@ -292,14 +307,18 @@ mem mem0(
     .addr_mem(mc_data_addr_i), .wr_mem(mc_datawr_i),
     .data_mem(mc_data_i), .cnf_mem(mc_data_cnf_i),
 
+    .wd_back(mc_wd_o), .wreg_back(mc_wreg_o),
+    .signed_back(mc_signed_o), .cnf_back(mc_cnf_o),
+    .wd_mem(mc_wd_i), .wreg_mem(mc_wreg_i), .signed_mem(mc_signed_i),
+
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
-    .wdata_o(mem_wdata_o), //.memcnf_o(mem_memcnf_o),
+    .wdata_o(mem_wdata_o),
 
     .mem_stall(mem_stall)
 );
 
 mem_wb mem_wb0(
-    .clk(clk_in), .rst(rst_in),
+    .clk(clk_in), .rst(rst),
     .mem_wd(mem_wd_o), .mem_wreg(mem_wreg_o),
     .mem_wdata(mem_wdata_o),
 
@@ -317,7 +336,7 @@ stall_control stall_ctrl0(
 /*
 always @(posedge clk_in)
   begin
-    if (rst_in)
+    if (rst)
       begin
       
       end

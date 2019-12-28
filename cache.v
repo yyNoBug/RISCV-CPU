@@ -10,13 +10,13 @@ module inst_cache(
     output reg inst_available_o,
 
     //Interaction with mem-control
-    input wire addr_needed,
+    //input wire addr_needed,
     input wire inst_available_i,
     input wire[`InstBus] inst_i,
     output reg inst_needed,
-    output wire[`InstAddrBus] addr_o,
+    output wire[`InstAddrBus] addr_o
 
-    input wire branch_interception
+    //input wire branch_interception
 );
 
     wire[`IndexBus] index;

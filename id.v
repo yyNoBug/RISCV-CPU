@@ -132,7 +132,7 @@ module id(
                     alusel_o = `SEL_SW;
                 end
                 default: begin
-                    $display("BOOM!");
+                    //$display("BOOM!");
                 end
                 endcase
                 reg1_read_o = 1;
@@ -140,7 +140,6 @@ module id(
                 imm = {{20{inst_i[31]}} ,inst_i[31:25], inst_i[11:7]};
             end
             default: begin
-                //if (inst_i) $display("BOOMSHAKALAKA!");
                 alusel_o = 0;
             end
             endcase
