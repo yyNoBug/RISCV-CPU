@@ -73,7 +73,7 @@ module mem_control(
                 almost_available <= 1;
                 cnt <= 0;
             end else if (cnt == 3'b000) begin
-                buffer[15:8] <= din_ram;
+                buffer[15:8] <= din_ram; // NOTE HERE: This may cause problem.
                 almost_available <= `False;
                 inst_available <= `False;
                 data_available <= `False;
@@ -81,6 +81,7 @@ module mem_control(
                 if (data_cnf_i == 2'b00) begin // For IF.
                     if (!inst_needed || branch_interception) begin
                         almost_available <= 1;
+                        wr_ram <= 0;
                     end else if (addr_ram == inst_addr_i + 2) begin
                         addr_ram <= addr + 7;
                         addr <= inst_addr_i;
