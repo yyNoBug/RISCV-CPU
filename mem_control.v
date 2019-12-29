@@ -109,8 +109,10 @@ module mem_control(
                     wreg_o <= wreg_i;
                     signed_o <= signed_i;
                     if (datawr_i == 1 && data_cnf_i == 2'b01) begin
-                        data_available <= `True;
-                        almost_available <= `True;
+                         /*data_available <= `True;
+                        almost_available <= `True;*/
+                        busy_data <= `True;
+                        cnt <= cnt + 1;
                     end else begin
                         busy_data <= `True;
                         cnt <= cnt + 1;
@@ -121,6 +123,13 @@ module mem_control(
                 addr_ram <= addr + 1;
                 dout_ram <= data[15:8];
                 if (wr == 1 && cnf_o == 2'b10) begin
+                    data_available <= `True;
+                    almost_available <= `True;
+                    busy_data <= `False;
+                    cnt <= 0;
+                end else if (wr == 1 && cnf_o == 2'b01) begin
+                    wr_ram <= 0;
+                    addr_ram <= 0;
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;

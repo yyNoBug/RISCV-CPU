@@ -12,9 +12,9 @@ module pc_reg(
 );
 
     always @ (posedge clk) begin
-        if (rst == `True) begin
+        if (rst) begin
             if_pc_i <= 32'h00000000;
-        end else if (branch_interception) begin 
+        end else if (branch_interception) begin
             if_pc_i <= npc;
         end else if (if_stall == `False) begin
             if_pc_i <= if_pc_i + 4'h4;

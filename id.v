@@ -146,7 +146,6 @@ module id(
         end
     end
 
-    // For correctness: an instruction must not get the data it calculates by data-forwarding.
     // For correctness: if something after ID stalls, ID may not get the true value from data-fowarding, so IF_ID should also stall.
     always @ (*) begin
         flag1 = `False;
