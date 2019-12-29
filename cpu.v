@@ -92,6 +92,14 @@ wire mem_wreg_o;
 wire[`RegAddrBus] mem_wd_o;
 wire[`RegBus] mem_wdata_o;
 
+//MEM -> d_Cache
+wire[`MemDataBus] data_c;
+wire data_available_c;
+wire[`InstAddrBus] addr_c;
+wire wr_c;
+wire[`MemDataBus] data_write_c;
+wire[1:0] memcnf_c;
+
 //MEM/WB -> WB
 wire wb_wreg_i;
 wire[`RegAddrBus] wb_wd_i;
@@ -133,19 +141,20 @@ wire mc_inst_needed_i;
 wire[`InstAddrBus] mc_inst_addr_i;
 wire mc_inst_available_o;
 
+wire mc_data_needed_i;
 wire mc_datawr_i;
 wire[`MemAddrBus] mc_data_addr_i;
 wire[`MemDataBus] mc_data_i;
 wire[1:0] mc_data_cnf_i;
-wire mc_busy_data;
+//wire mc_busy_data;
 wire mc_data_available_o;
-wire[`RegAddrBus] mc_wd_i;
-wire[`RegAddrBus] mc_wd_o;
-wire mc_wreg_i;
-wire mc_wreg_o;
-wire mc_signed_i;
-wire mc_signed_o;
-wire[1:0] mc_cnf_o;
+//wire[`RegAddrBus] mc_wd_i;
+//wire[`RegAddrBus] mc_wd_o;
+//wire mc_wreg_i;
+//wire mc_wreg_o;
+//wire mc_signed_i;
+//wire mc_signed_o;
+//wire[1:0] mc_cnf_o;
 
 
 
@@ -167,13 +176,10 @@ inst_cache icache(
     .clk(clk_in), .rst(rst),
     .addr_i(pc_c), .inst_o(inst_c), .inst_available_o(inst_available_c),
     
-    //.addr_needed(mc_almost_available_o),
     .inst_available_i(mc_inst_available_o),
     .inst_i(mc_inst_o),
     .inst_needed(mc_inst_needed_i),
     .addr_o(mc_inst_addr_i)
-
-    //.branch_interception(br)
 );
 
 mem_control mem_control0(
@@ -183,16 +189,17 @@ mem_control mem_control0(
     
     .inst_needed(mc_inst_needed_i),
     .inst_addr_i(mc_inst_addr_i),
-    //.ifid_stall(ifid_stall),
     .almost_available(mc_almost_available_o),
     .inst_available(mc_inst_available_o), .inst(mc_inst_o),
 
+    .data_needed(mc_data_needed_i),
     .datawr_i(mc_datawr_i), .data_addr_i(mc_data_addr_i),
     .data_i(mc_data_i), .data_cnf_i(mc_data_cnf_i),
-    .busy_data(mc_busy_data), .data_available(mc_data_available_o),
-    .wd_i(mc_wd_i), .wreg_i(mc_wreg_i), .signed_i(mc_signed_i),
-    .wd_o(mc_wd_o), .wreg_o(mc_wreg_o),
-    .signed_o(mc_signed_o), .cnf_o(mc_cnf_o)
+    .data_available(mc_data_available_o)
+    //.busy_data(mc_busy_data), 
+    //.wd_i(mc_wd_i), .wreg_i(mc_wreg_i), .signed_i(mc_signed_i),
+    //.wd_o(mc_wd_o), .wreg_o(mc_wreg_o),
+    //.signed_o(mc_signed_o), .cnf_o(mc_cnf_o)
 
 );
 
@@ -302,6 +309,11 @@ mem mem0(
     .memcnf_i(mem_memcnf_i), .memsigned_i(mem_memsigned_i),
     .inst_i(mem_inst_i),
 
+    .data_c(data_c), .data_available_c(data_available_c),
+    .addr_c(addr_c), .wr_c(wr_c),
+    .data_write_c(data_write_c), .memcnf_c(memcnf_c),
+
+    /*
     .addr_needed(mc_almost_available_o), .mem_available(mc_data_available_o),
     .mem_working(mc_busy_data), .data_in(mc_inst_o),
     .addr_mem(mc_data_addr_i), .wr_mem(mc_datawr_i),
@@ -309,12 +321,26 @@ mem mem0(
 
     .wd_back(mc_wd_o), .wreg_back(mc_wreg_o),
     .signed_back(mc_signed_o), .cnf_back(mc_cnf_o),
-    .wd_mem(mc_wd_i), .wreg_mem(mc_wreg_i), .signed_mem(mc_signed_i),
+    .wd_mem(mc_wd_i), .wreg_mem(mc_wreg_i), .signed_mem(mc_signed_i),*/
 
     .wd_o(mem_wd_o), .wreg_o(mem_wreg_o),
     .wdata_o(mem_wdata_o),
 
     .mem_stall(mem_stall)
+);
+
+data_cache dcache(
+    .rst(rst), .clk(clk_in),
+    
+    .addr_i(addr_c), .wr_i(wr_c),
+    .data_write_i(data_write_c), .memcnf_i(memcnf_c),
+    .data_o(data_c), .data_available_o(data_available_c),
+
+    .addr_needed(mc_almost_available_o),
+    .data_available_i(mc_data_available_o), .data_i(mc_inst_o),
+    .data_needed(mc_data_needed_i), .addr_o(mc_data_addr_i),
+    .data_write_o(mc_data_i), .wr_o(mc_datawr_i),
+    .memcnf_o(mc_data_cnf_i)
 );
 
 mem_wb mem_wb0(

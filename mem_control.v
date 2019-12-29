@@ -11,16 +11,25 @@ module mem_control(
     output reg[`InstAddrBus] addr_ram,
     output reg wr_ram,
     
+    // common output
     output reg almost_available,
     output reg[`InstBus] inst, // It's just a name. Data also use this reg.
 
     // interaction with i_cache
     input wire inst_needed,
     input wire[`InstAddrBus] inst_addr_i,
-    //input wire ifid_stall,
     output reg inst_available,
 
-    // interaction with mem
+    // interaction with d_cache
+    input wire data_needed,
+    input wire datawr_i,
+    input wire[`MemAddrBus] data_addr_i,
+    input wire[`MemDataBus] data_i,
+    input wire[1:0] data_cnf_i,
+    output reg data_available
+
+
+    /* interaction with mem
     input wire datawr_i,
     input wire[`MemAddrBus] data_addr_i,
     input wire[`MemDataBus] data_i,
@@ -33,12 +42,13 @@ module mem_control(
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o,
     output reg signed_o,
-    output reg[1:0] cnf_o
+    output reg[1:0] cnf_o*/
 );
 
     reg[2:0] cnt;
-    //reg[1:0] cnf;
+    reg[1:0] cnf;
     reg busy_inst;
+    reg busy_data;
     
     reg[`InstAddrBus] addr;
     reg[`MemDataBus] data;
@@ -77,11 +87,12 @@ module mem_control(
                 almost_available <= `False;
                 inst_available <= `False;
                 data_available <= `False;
-                cnf_o <= data_cnf_i;
-                if (data_cnf_i == 2'b00) begin // For IF.
+                cnf <= data_cnf_i;
+                if (!data_needed) begin // For IF.
                     if (!inst_needed || branch_interception) begin
                         almost_available <= 1;
                         wr_ram <= 0;
+                        addr_ram <= 0;
                     end else if (addr_ram == inst_addr_i + 2) begin
                         addr_ram <= addr + 7;
                         addr <= inst_addr_i;
@@ -105,11 +116,11 @@ module mem_control(
                     dout_ram <= data_i[7:0];
                     wr <= datawr_i;
                     wr_ram <= datawr_i;
-                    wd_o <= wd_i;
-                    wreg_o <= wreg_i;
-                    signed_o <= signed_i;
+                    //wd_o <= wd_i;
+                    //wreg_o <= wreg_i;
+                    //signed_o <= signed_i;
                     if (datawr_i == 1 && data_cnf_i == 2'b01) begin
-                         /*data_available <= `True;
+                        /*data_available <= `True;
                         almost_available <= `True;*/
                         busy_data <= `True;
                         cnt <= cnt + 1;
@@ -122,12 +133,12 @@ module mem_control(
             end else if (cnt == 3'b001) begin
                 addr_ram <= addr + 1;
                 dout_ram <= data[15:8];
-                if (wr == 1 && cnf_o == 2'b10) begin
+                if (wr == 1 && cnf == 2'b10) begin
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;
-                end else if (wr == 1 && cnf_o == 2'b01) begin
+                end else if (wr == 1 && cnf == 2'b01) begin
                     wr_ram <= 0;
                     addr_ram <= 0;
                     data_available <= `True;
@@ -143,7 +154,7 @@ module mem_control(
                 dout_ram <= data[23:16];
                 addr_ram <= addr + 2;
                 cnt <= cnt + 1;
-                if (wr == 0 && cnf_o == 2'b01) begin
+                if (wr == 0 && cnf == 2'b01) begin
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
@@ -157,12 +168,12 @@ module mem_control(
                 dout_ram <= data[31:24];
                 addr_ram <= addr + 3;
                 cnt <= cnt + 1;
-                if (wr == 1 && cnf_o == 2'b11) begin
+                if (wr == 1 && cnf == 2'b11) begin
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;
-                end else if (wr == 0 && cnf_o == 2'b10) begin
+                end else if (wr == 0 && cnf == 2'b10) begin
                     data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
@@ -200,6 +211,10 @@ module mem_control(
                 inst_available <= 0;
                 cnt <= 0;
             end
+        end
+        if (wr_ram) begin
+            //$timeformat(-9, 1, "ns", 12);
+            //$display("%t mem_write %h %h", $realtime, addr, data);
         end
     end
 
