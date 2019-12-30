@@ -56,13 +56,13 @@ module mem_control(
     
     reg[31:0] buffer;
 
-    /*
+    
     always @ (posedge clk) begin
         if (wr_ram) begin
-            $display("mem_write %h $h", addr, data);
+            //$display("mem_write %h %h", addr, data);
         end
     end
-    */
+    
 
     always @ (posedge clk) begin
         if (rst == `RstEnable) begin
@@ -116,9 +116,6 @@ module mem_control(
                     dout_ram <= data_i[7:0];
                     wr <= datawr_i;
                     wr_ram <= datawr_i;
-                    //wd_o <= wd_i;
-                    //wreg_o <= wreg_i;
-                    //signed_o <= signed_i;
                     if (datawr_i == 1 && data_cnf_i == 2'b01) begin
                         /*data_available <= `True;
                         almost_available <= `True;*/
@@ -134,14 +131,14 @@ module mem_control(
                 addr_ram <= addr + 1;
                 dout_ram <= data[15:8];
                 if (wr == 1 && cnf == 2'b10) begin
-                    data_available <= `True;
+                    //data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;
                 end else if (wr == 1 && cnf == 2'b01) begin
                     wr_ram <= 0;
                     addr_ram <= 0;
-                    data_available <= `True;
+                    //data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;
@@ -169,7 +166,7 @@ module mem_control(
                 addr_ram <= addr + 3;
                 cnt <= cnt + 1;
                 if (wr == 1 && cnf == 2'b11) begin
-                    data_available <= `True;
+                    //data_available <= `True;
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;

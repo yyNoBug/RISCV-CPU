@@ -88,12 +88,12 @@
 `define IndexBus            6:0
 
 `define dCacheLine          32
-`define dCacheBus           58:0 //58:32存Tag 31:0存数据, 58 = 32+32-log(32)-1
-`define dCacheTagBus        58:32
-`define dCacheTagFirstBit   58
+`define dCacheBus           56:0 //58:32存Tag 31:0存数据, 58 = 32+32-log(32)-1
+`define dCacheTagBus        56:32
+`define dCacheTagFirstBit   56
 `define dCacheDataBus       31:0
-`define dAddrTagBus         31:5
-`define dAddrIndexBus       4:0
+`define dAddrTagBus         31:7
+`define dAddrIndexBus       6:2
 `define dIndexBus           4:0
 `define dAddrOffsetBus      1:0
 `define dOffsetBus          1:0
