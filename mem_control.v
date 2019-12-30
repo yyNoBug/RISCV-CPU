@@ -27,22 +27,6 @@ module mem_control(
     input wire[`MemDataBus] data_i,
     input wire[1:0] data_cnf_i,
     output reg data_available
-
-
-    /* interaction with mem
-    input wire datawr_i,
-    input wire[`MemAddrBus] data_addr_i,
-    input wire[`MemDataBus] data_i,
-    input wire[1:0] data_cnf_i,
-    output reg busy_data,
-    output reg data_available,
-    input wire[`RegAddrBus] wd_i,
-    input wire wreg_i,
-    input wire signed_i,
-    output reg[`RegAddrBus] wd_o,
-    output reg wreg_o,
-    output reg signed_o,
-    output reg[1:0] cnf_o*/
 );
 
     reg[2:0] cnt;
@@ -116,11 +100,12 @@ module mem_control(
                     dout_ram <= data_i[7:0];
                     wr <= datawr_i;
                     wr_ram <= datawr_i;
-                    if (datawr_i == 1 && data_cnf_i == 2'b01) begin
-                        /*data_available <= `True;
-                        almost_available <= `True;*/
+                    if (datawr_i == 1 && (data_addr_i == 32'h30000 || data_addr_i == 32'h30004)) begin
                         busy_data <= `True;
                         cnt <= cnt + 1;
+                    end else if (datawr_i == 1 && data_cnf_i == 2'b01) begin
+                        data_available <= `True;
+                        almost_available <= `True;
                     end else begin
                         busy_data <= `True;
                         cnt <= cnt + 1;
@@ -135,7 +120,7 @@ module mem_control(
                     almost_available <= `True;
                     busy_data <= `False;
                     cnt <= 0;
-                end else if (wr == 1 && cnf == 2'b01) begin
+                end else if (wr == 1 && (addr == 32'h30000 || addr == 32'h30004)) begin
                     wr_ram <= 0;
                     addr_ram <= 0;
                     //data_available <= `True;
@@ -153,9 +138,8 @@ module mem_control(
                 cnt <= cnt + 1;
                 if (wr == 0 && cnf == 2'b01) begin
                     data_available <= `True;
-                    almost_available <= `True;
                     busy_data <= `False;
-                    cnt <= 0;
+                    cnt <= 3'b110;
                 end else begin
                     cnt <= cnt + 1;
                 end
@@ -172,9 +156,8 @@ module mem_control(
                     cnt <= 0;
                 end else if (wr == 0 && cnf == 2'b10) begin
                     data_available <= `True;
-                    almost_available <= `True;
                     busy_data <= `False;
-                    cnt <= 0;
+                    cnt <= 3'b110;
                 end else begin
                     cnt <= cnt + 1;
                 end
@@ -190,13 +173,11 @@ module mem_control(
                 if (busy_inst) begin
                     inst_available <= 1;
                     busy_inst <= `False;
-                    almost_available <= 0;
                     cnt <= 3'b110;
                 end else if (busy_data) begin
-                    data_available <= 1;
+                    data_available <= `True;
                     busy_data <= `False;
-                    almost_available <= 1;
-                    cnt <= 0;
+                    cnt <= 3'b110;
                 end else begin
                     $display("BOOMSHAKALAKA!");
                 end
@@ -206,6 +187,7 @@ module mem_control(
                 addr_ram <= addr + 6;
                 almost_available <= 1;
                 inst_available <= 0;
+                data_available <= 0;
                 cnt <= 0;
             end
         end

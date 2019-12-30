@@ -19,22 +19,11 @@ module regfile (
 
     reg[`RegBus] regs[0 : `RegNum - 1];
 
-    //the paragraph is only testing
-    /*
-    always @ (*) begin
-        if (rst == `RstEnable) begin
-            for (integer i = 0; i < `RegNum; i = i + 1) begin
-                regs[i] <= 32'b0;
-                regs[i] <= 32'b0;
-            end
-        end
-    end
-    */
-
     always @ (posedge clk) begin
         if (rst == `RstDisable) begin
             if ((we == `WriteEnable) && (waddr != 0))  begin
                 //$display("write %h %h", waddr, wdata);
+                //$display("%t write %h %h", $realtime, waddr, wdata);
                 regs[waddr] <= wdata;
             end
         end
