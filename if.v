@@ -11,15 +11,6 @@ module iF(
     input wire inst_available,
     input wire[`InstBus] inst_c,
     output wire[`InstAddrBus] pc_c,
-    
-    /*
-    // interation with memcontrol
-    input wire addr_needed,
-    input wire inst_available,
-    input wire[`InstBus] inst_in,
-    input wire[`InstAddrBus] pc_back,
-    output reg[`InstAddrBus] pc_mem,
-    */
 
     output reg if_stall
     // if_stall is False has two meanings: 
@@ -50,19 +41,5 @@ module iF(
             if_stall = `True;
         end
     end
-
-/*
-    always @ (*) begin
-        if (rst || branch_interception) begin
-            pc_mem = 0;
-            if_stall = `False;
-        end else if (addr_needed && !memcnf) begin // BUG here: if something else blocked PC, instructions will run more than once.
-            pc_mem = pc_in;
-            if_stall = `False;
-        end else begin
-            if_stall = `True;
-        end
-    end
-*/
 
 endmodule

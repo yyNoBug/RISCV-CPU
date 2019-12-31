@@ -12,8 +12,13 @@ module ex(
     input wire[`RegAddrBus] wd_i,
     input wire wreg_i, //此段指令是否有写入的寄存�?
     input wire[`InstBus] inst_i,
+    input wire br_i,
 
     // For branch instructions.
+    output reg isbranch,
+    output reg jmp,
+    output wire[`InstAddrBus] jmp_addr,
+    output wire[`InstAddrBus] ex_pc,
     output reg branch_interception,
     output reg[`InstAddrBus] npc,
 
@@ -31,6 +36,9 @@ module ex(
     output reg ex_stall
 );
 
+    assign ex_pc = opr4_i;
+    assign jmp_addr = opr3_i + opr4_i;
+
     reg[`RegBus] logicout;
 
     always @ (*) begin
@@ -43,6 +51,8 @@ module ex(
             memcnf_o = 0;
             memsigned_o = 0;
             inst_o = 0;
+            jmp = 0;
+            isbranch = 0;
         end else begin
             branch_interception = 0;
             npc = 0;
@@ -51,6 +61,8 @@ module ex(
             memwr_o = 0;
             memcnf_o = 0;
             memsigned_o = 0;
+            jmp = 0;
+            isbranch = 0;
             inst_o = inst_i;
             case(alusel_i)
             `SEL_OR: begin
@@ -101,45 +113,75 @@ module ex(
                 branch_interception = `True;
             end
             `SEL_BEQ: begin
+                isbranch = 1;
                 logicout = 0;
                 if (opr1_i == opr2_i) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_BNE: begin
+                isbranch = 1;
                 logicout = 0;
                 if (opr1_i != opr2_i) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_BLTU: begin
+                isbranch = 1;
                 logicout = 0;
                 if (opr1_i < opr2_i) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_BGEU: begin
+                isbranch = 1;
                 logicout = 0;
                 if (opr1_i >= opr2_i) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_BLT: begin
+                isbranch = 1;
                 logicout = 0;
                 if ($signed(opr1_i) < $signed(opr2_i)) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_BGE: begin
+                isbranch = 1;
                 logicout = 0;
                 if ($signed(opr1_i) >= $signed(opr2_i)) begin
                     npc = opr3_i + opr4_i;
-                    branch_interception = `True;
+                    branch_interception = !br_i;
+                    jmp = 1;
+                end else begin
+                    branch_interception = br_i;
+                    npc = opr4_i + 4;
                 end
             end
             `SEL_LB: begin

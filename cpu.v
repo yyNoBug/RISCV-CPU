@@ -36,6 +36,7 @@ wire[`InstAddrBus] if_pc_i;
 //IF -> IF/ID
 wire[`InstAddrBus] if_pc_o;
 wire[`InstAddrBus] if_inst_o;
+//wire if_br_o;
 
 //IF -> i_cache
 wire inst_available_c;
@@ -46,6 +47,7 @@ wire[`InstAddrBus] pc_c;
 wire[`InstAddrBus] pc;
 wire[`InstAddrBus] id_pc_i;
 wire[`InstAddrBus] id_inst_i;
+wire id_br_i;
 
 //ID -> ID/EX
 wire[`AluSelBus] id_alusel_o;
@@ -56,6 +58,7 @@ wire[`InstAddrBus] id_opr4_o;
 wire id_wreg_o;
 wire[`RegAddrBus] id_wd_o;
 wire[`InstBus] id_inst_o;
+wire id_br_o;
 
 //ID/EX -> EX
 wire[`AluSelBus] ex_alusel_i;
@@ -66,6 +69,8 @@ wire[`InstAddrBus] ex_opr4_i;
 wire ex_wreg_i;
 wire[`RegAddrBus] ex_wd_i;
 wire[`InstBus] ex_inst_i;
+wire ex_br_i;
+
 
 //EX -> EX/MEM
 wire ex_wreg_o;
@@ -133,6 +138,14 @@ wire exmem_stall;
 wire br;
 wire[`InstAddrBus] npc;
 
+// Prediction
+wire br_prd;
+wire[`InstAddrBus] npc_prd;
+wire isbranch;
+wire[`InstAddrBus] br_pc;
+wire jmp;
+wire[`InstAddrBus] jmp_addr;
+
 //Mem-control
 wire mc_almost_available_o;
 wire[`InstBus] mc_inst_o;
@@ -148,19 +161,12 @@ wire[`MemDataBus] mc_data_i;
 wire[1:0] mc_data_cnf_i;
 //wire mc_busy_data;
 wire mc_data_available_o;
-//wire[`RegAddrBus] mc_wd_i;
-//wire[`RegAddrBus] mc_wd_o;
-//wire mc_wreg_i;
-//wire mc_wreg_o;
-//wire mc_signed_i;
-//wire mc_signed_o;
-//wire[1:0] mc_cnf_o;
-
 
 
 pc_reg pc_reg0(
     .clk(clk_in), .rst(rst), 
     .branch_interception(br), .npc(npc),
+    .br_prd(br_prd), .npc_prd(npc_prd),
     .if_stall(pcreg_stall), .if_pc_i(if_pc_i)
 );
 
@@ -182,6 +188,18 @@ inst_cache icache(
     .addr_o(mc_inst_addr_i)
 );
 
+pred pred0(
+    .clk(clk_in), .rst(rst),
+
+    .addr_i(pc_c), 
+
+    .is_br(isbranch), .addr_ex(br_pc),
+    .jmp_addr(jmp_addr), .jmp(jmp),
+    
+    .addr_p(npc_prd),
+    .br_p(br_prd)
+);
+
 mem_control mem_control0(
     .clk(clk_in), .rst(rst), .branch_interception(br),
     .dout_ram(mem_dout), .din_ram(mem_din),
@@ -196,23 +214,19 @@ mem_control mem_control0(
     .datawr_i(mc_datawr_i), .data_addr_i(mc_data_addr_i),
     .data_i(mc_data_i), .data_cnf_i(mc_data_cnf_i),
     .data_available(mc_data_available_o)
-    //.busy_data(mc_busy_data), 
-    //.wd_i(mc_wd_i), .wreg_i(mc_wreg_i), .signed_i(mc_signed_i),
-    //.wd_o(mc_wd_o), .wreg_o(mc_wreg_o),
-    //.signed_o(mc_signed_o), .cnf_o(mc_cnf_o)
-
 );
 
 if_id if_id0(
     .clk(clk_in), .rst(rst), .branch_interception(br),
-    .if_pc(if_pc_o),
-    .if_inst(if_inst_o), .id_pc(id_pc_i),
+    .if_pc(if_pc_o), .if_inst(if_inst_o),
+    .if_br(br_prd),
+    .id_pc(id_pc_i), .id_br(id_br_i),
     .id_inst(id_inst_i), .ifid_stall(ifid_stall)
 );
 
 id id0(
     .rst(rst), .pc_i(id_pc_i), .branch_interception(br),
-    .inst_i(id_inst_i),
+    .inst_i(id_inst_i), .br_i(id_br_i),
     
     //from RegFile
     .reg1_data_i(reg1_data), .reg2_data_i(reg2_data),
@@ -226,7 +240,7 @@ id id0(
     .opr1_o(id_opr1_o), .opr2_o(id_opr2_o), 
     .opr3_o(id_opr3_o), .opr4_o(id_opr4_o),
     .wd_o(id_wd_o), .wreg_o(id_wreg_o),
-    .inst_o(id_inst_o),
+    .inst_o(id_inst_o), .br_o(id_br_o),
 
     //data-fowarding
     .dataf_ex_we(ex_wreg_o), .dataf_ex_wd(ex_wd_o),
@@ -253,13 +267,13 @@ id_ex id_ex0(
     .id_opr1(id_opr1_o), .id_opr2(id_opr2_o), 
     .id_opr3(id_opr3_o), .id_opr4(id_opr4_o),
     .id_wd(id_wd_o), .id_wreg(id_wreg_o),
-    .id_inst(id_inst_o),
+    .id_inst(id_inst_o), .id_br(id_br_o),
     
     .ex_alusel(ex_alusel_i),
     .ex_opr1(ex_opr1_i), .ex_opr2(ex_opr2_i),
     .ex_opr3(ex_opr3_i), .ex_opr4(ex_opr4_i),
     .ex_wd(ex_wd_i), .ex_wreg(ex_wreg_i),
-    .ex_inst(ex_inst_i),
+    .ex_inst(ex_inst_i), .ex_br(ex_br_i),
 
     .idex_stall(idex_stall)
 );
@@ -270,7 +284,7 @@ ex ex0(
     .opr1_i(ex_opr1_i), .opr2_i(ex_opr2_i),
     .opr3_i(ex_opr3_i), .opr4_i(ex_opr4_i),
     .wd_i(ex_wd_i), .wreg_i(ex_wreg_i),
-    .inst_i(ex_inst_i),
+    .inst_i(ex_inst_i), .br_i(ex_br_i),
     
     .wd_o(ex_wd_o), .wreg_o(ex_wreg_o),
     .wdata_o(ex_wdata_o),
@@ -279,6 +293,8 @@ ex ex0(
     .inst_o(ex_inst_o),
 
     .branch_interception(br), .npc(npc),
+    .jmp(jmp), .ex_pc(br_pc),
+    .isbranch(isbranch), .jmp_addr(jmp_addr),
 
     .ex_stall(ex_stall)
 );

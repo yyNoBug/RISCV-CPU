@@ -6,7 +6,7 @@ module id(
 
     input wire[`InstAddrBus] pc_i,
     input wire[`InstBus] inst_i,
-
+    input wire br_i,
 
     // Interaction with regfile.
     output reg reg1_read_o,
@@ -24,6 +24,7 @@ module id(
     output reg[`RegAddrBus] wd_o,
     output reg wreg_o, //译码阶段的指令是否有要写入的目的寄存器
     output reg[`InstBus] inst_o, // For debug use.
+    output wire br_o,
 
     // For data-fowarding.
     input wire dataf_ex_we, //If there isn't any error here, I'm 50% confident that data-fowarding will work properly.
@@ -36,10 +37,11 @@ module id(
     input wire dataf_mem_we,
     input wire[`RegAddrBus] dataf_mem_wd,
     input wire[`RegBus] dataf_mem_data,
-    //input wire[1:0] dataf_mem_memcnf,
 
     output wire id_stall
 );
+
+    assign br_o = br_i;
 
     wire[6:0] op = inst_i[6:0];
     reg[`ImmBus] imm; 

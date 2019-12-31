@@ -15,6 +15,7 @@ module id_ex(
     input wire[`RegAddrBus] id_wd,
     input wire id_wreg,
     input wire[`InstBus] id_inst,
+    input wire id_br,
 
     output reg[`AluSelBus] ex_alusel,
     output reg[`RegBus] ex_opr1,
@@ -23,7 +24,8 @@ module id_ex(
     output reg[`InstAddrBus] ex_opr4,
     output reg[`RegAddrBus] ex_wd,
     output reg ex_wreg,
-    output reg[`InstBus] ex_inst
+    output reg[`InstBus] ex_inst,
+    output reg ex_br
 );
 
     always @ (posedge clk) begin
@@ -36,6 +38,7 @@ module id_ex(
             ex_wd <= 0;
             ex_wreg <= 0;
             ex_inst <= 0;
+            ex_br <= 0;
         end else if (idex_stall) begin
         end else if (branch_interception) begin
             ex_alusel <= 0;
@@ -46,6 +49,7 @@ module id_ex(
             ex_wd <= 0;
             ex_wreg <= 0;
             ex_inst <= 0;
+            ex_br <= 0;
         end else if (id_stall) begin // may have logic problem about ID_stall here.
             ex_alusel <= 0;
             ex_opr1 <= 0;
@@ -55,6 +59,7 @@ module id_ex(
             ex_wd <= 0;
             ex_wreg <= 0;
             ex_inst <= 0;
+            ex_br <= 0;
         end else if (!idex_stall) begin
             ex_alusel <= id_alusel;
             ex_opr1 <= id_opr1;
@@ -64,6 +69,7 @@ module id_ex(
             ex_wd <= id_wd;
             ex_wreg <= id_wreg;
             ex_inst <= id_inst;
+            ex_br <= id_br;
         end else begin
         end
     end

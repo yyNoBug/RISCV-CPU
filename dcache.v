@@ -51,7 +51,6 @@ module data_cache(
             2'b11:
                 data_o = cache[index][31:24];
             endcase
-            //data_o = cache[index][`dCacheDataBus];
         end
     end
 
@@ -65,7 +64,13 @@ module data_cache(
         end else if ((addr_i == 32'h30000 || addr_i == 32'h30004) && wr_i && addr_needed) begin
             data_available_o = 1;
             data_needed = 1;
+        end else if ((addr_i == 32'h30000 || addr_i == 32'h30004) && !wr_i && data_available_i) begin
+            data_available_o = 1;
+            data_needed = 0;
         end else if ((addr_i == 32'h30000 || addr_i == 32'h30004) && wr_i && !addr_needed) begin
+            data_available_o = 0;
+            data_needed = 1;
+        end else if ((addr_i == 32'h30000 || addr_i == 32'h30004) && !wr_i && !data_available_i) begin
             data_available_o = 0;
             data_needed = 1;
         end else if (addr_i[`dAddrTagBus] != cache[index][`dCacheTagBus]) begin // miss
@@ -170,36 +175,57 @@ module data_cache(
         end else if (data_available_i) begin //BUG here: written data will come back
             if (memcnf_i == 2'b01 && offset == 2'b00) begin
                 cache[index][7:0] <= data_i[7:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b0001;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b0001;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b0001;
+                end
             end else if (memcnf_i == 2'b01 && offset == 2'b01) begin
                 cache[index][15:8] <= data_i[7:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b0010;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b0010;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b0010;
+                end
             end else if (memcnf_i == 2'b01 && offset == 2'b10) begin
                 cache[index][23:16] <= data_i[7:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b0100;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b0100;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b0100;
+                end
             end else if (memcnf_i == 2'b01 && offset == 2'b11) begin
                 cache[index][31:24] <= data_i[7:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b1000;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b1000;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b1000;
+                end
             end else if (memcnf_i == 2'b10 && offset == 2'b00) begin
                 cache[index][15:0] <= data_i[15:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b0011;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b0011;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b0011;
+                end
             end else if (memcnf_i == 2'b10 && offset == 2'b10) begin
                 cache[index][31:16] <= data_i[15:0];
-                cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
-                valid[index] <= 4'b1100;
+                if (cache[index][`dCacheTagBus] == addr_i[`dAddrTagBus]) begin
+                    valid[index] <= valid[index] | 4'b1100;
+                end else begin
+                    cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
+                    valid[index] <= 4'b1100;
+                end
             end else if (memcnf_i == 2'b11 && offset == 2'b00) begin
                 cache[index][`dCacheDataBus] <= data_i;
                 cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];
                 valid[index] <= 4'b1111;
             end
-            /*
-            cache[index][`dCacheDataBus] <= data_i;
-            cache[index][`dCacheTagBus] <= addr_i[`dAddrTagBus];*/
         end
     end
 

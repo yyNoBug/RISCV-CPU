@@ -97,3 +97,12 @@
 `define dIndexBus           4:0
 `define dAddrOffsetBus      1:0
 `define dOffsetBus          1:0
+
+`define pCacheLine          32
+`define PredCacheBus        58:0 //56:32存Tag 31:0存指令, 56 = 32+32-log(32)-1-2
+`define PredCntBus          58:57
+`define PredTagBus          56:32
+`define PredAddrBus         31:0
+`define pAddrTagBus         31:7
+`define pAddrIndexBus       6:2
+`define pIndexBus           4:0
