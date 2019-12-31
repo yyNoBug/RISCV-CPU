@@ -68,7 +68,7 @@ A RISCV CPU with 5-stage pipeline.
 | manyarguments  |   U    |
 |   multiarray   |   U    |
 |       pi       |   U    |
-|     qsort      |   F    |
+|     qsort      |   P    |
 |     queens     |   P    |
 | statement_test |   U    |
 |   superloop    |   U    |

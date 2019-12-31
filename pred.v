@@ -44,7 +44,7 @@ module pred(
         if (rst) begin
             for (i = 0; i < `pCacheLine; i = i + 1) begin
                 cache[i][`PredCntBus] <= 2'b00;
-                cache[i][56] <= 1;
+                cache[i][54] <= 1;
             end
         end else if (is_br && jmp) begin
             cache[pindex][`PredTagBus] <= addr_ex[`pAddrTagBus];

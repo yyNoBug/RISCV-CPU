@@ -78,31 +78,31 @@
 
 `define ImmBus              31:0
 
-`define CacheLine           128
-`define CacheBus            54:0 //56:32存Tag 31:0存指令, 54 = 32+32-log(128)-1-2
-`define CacheTagBus         54:32
-`define CacheTagFirstBit    54
+`define CacheLine           256
+`define CacheBus            53:0 //52:32存Tag 31:0存指令, 54 = 32+32-log(512)-1-2
+`define CacheTagBus         53:32
+`define CacheTagFirstBit    53
 `define CacheInstBus        31:0
-`define AddrTagBus          31:9
-`define AddrIndexBus        8:2
-`define IndexBus            6:0
+`define AddrTagBus          31:10
+`define AddrIndexBus        9:2
+`define IndexBus            7:0
 
-`define dCacheLine          32
-`define dCacheBus           56:0 //58:32存Tag 31:0存数据, 58 = 32+32-log(32)-1
-`define dCacheTagBus        56:32
-`define dCacheTagFirstBit   56
+`define dCacheLine          128
+`define dCacheBus           54:0 //58:32存Tag 31:0存数据, 58 = 32+32-log(32)-1
+`define dCacheTagBus        54:32
+`define dCacheTagFirstBit   54
 `define dCacheDataBus       31:0
-`define dAddrTagBus         31:7
-`define dAddrIndexBus       6:2
-`define dIndexBus           4:0
+`define dAddrTagBus         31:9
+`define dAddrIndexBus       8:2
+`define dIndexBus           6:0
 `define dAddrOffsetBus      1:0
 `define dOffsetBus          1:0
 
-`define pCacheLine          32
-`define PredCacheBus        58:0 //56:32存Tag 31:0存指令, 56 = 32+32-log(32)-1-2
-`define PredCntBus          58:57
-`define PredTagBus          56:32
+`define pCacheLine          128
+`define PredCacheBus        56:0 //56:32存Tag 31:0存指令, 56 = 32+32-log(32)-1-2
+`define PredCntBus          56:55
+`define PredTagBus          54:32
 `define PredAddrBus         31:0
-`define pAddrTagBus         31:7
-`define pAddrIndexBus       6:2
-`define pIndexBus           4:0
+`define pAddrTagBus         31:9
+`define pAddrIndexBus       8:2
+`define pIndexBus           6:0

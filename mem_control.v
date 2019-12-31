@@ -104,7 +104,7 @@ module mem_control(
                         busy_data <= `True;
                         cnt <= cnt + 1;
                     end else if (datawr_i == 1 && data_cnf_i == 2'b01) begin
-                        data_available <= `True;
+                        //data_available <= `True;
                         almost_available <= `True;
                     end else begin
                         busy_data <= `True;

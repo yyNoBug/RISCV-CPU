@@ -2,13 +2,6 @@
 *.pdf
 *.out
 *.swp
-block_ram.v
-fifo.v
-testbench.v
-uart_baud_clk.v
-uart_rx.v
-uart_tx.v
-uart.v
+document.*
 A Correct Version/*
-Testing Version/*
 gy version/*
