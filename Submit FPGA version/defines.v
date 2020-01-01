@@ -79,19 +79,19 @@
 `define ImmBus              31:0
 
 `define CacheLine           256
-`define CacheBus            53:0 //56:32存Tag 31:0存指令, 54 = 32+32-log(128)-1-2
-`define CacheTagBus         53:32
-`define CacheTagFirstBit    53
+`define CacheBus            39:0 //56:32存Tag 31:0存指令, 54 = 32+32-log(128)-1-2
+`define CacheTagBus         39:32
+`define CacheTagFirstBit    39
 `define CacheInstBus        31:0
-`define AddrTagBus          31:10
+`define AddrTagBus          17:10
 `define AddrIndexBus        9:2
 `define IndexBus            7:0
 
 `define pCacheLine          128
-`define PredCacheBus        56:0 //56:32存Tag 31:0存指令, 56 = 32+32-log(32)-1-2
-`define PredCntBus          56:55
-`define PredTagBus          54:32
+`define PredCacheBus        42:0 //56:32存Tag 31:0存指令, 56 = 32+32-log(32)-1-2
+`define PredCntBus          42:41
+`define PredTagBus          40:32
 `define PredAddrBus         31:0
-`define pAddrTagBus         31:9
+`define pAddrTagBus         17:9
 `define pAddrIndexBus       8:2
 `define pIndexBus           6:0
