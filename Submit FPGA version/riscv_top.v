@@ -13,7 +13,7 @@ module riscv_top
 	output wire			led
 );
 
-localparam SYS_CLK_FREQ = 125000000;
+localparam SYS_CLK_FREQ = 135000000;
 localparam UART_BAUD_RATE = 115200;
 localparam RAM_ADDR_WIDTH = 17; 			// 128KiB ram, should not be modified
 

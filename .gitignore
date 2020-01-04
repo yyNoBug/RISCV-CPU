@@ -2,6 +2,6 @@
 *.pdf
 *.out
 *.swp
-A Correct Version/*
-gy version/*
+Naive Version/*
+Hciproblem/*
 pre.md
